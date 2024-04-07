@@ -24,6 +24,7 @@ function Analysis() {
     <>
       <Typography.Title level={4}>Hi, Welcome back 👋</Typography.Title>
       <Row gutter={[16, 16]}>
+        {/* 卡片开始 */}
         <Col lg={6} md={12} span={24}>
           <AnalysisCard
             cover={glass_bag}
@@ -42,7 +43,7 @@ function Analysis() {
         <Col lg={6} md={12} span={24}>
           <AnalysisCard
             cover={glass_users}
-            title="1.35m"
+            title="1.35mm"
             subtitle="New Users"
             style={{
               color: theme.colorInfoTextActive,
@@ -80,6 +81,7 @@ function Analysis() {
             }}
           />
         </Col>
+        {/* 卡片结束 */}
       </Row>
 
       <Row gutter={[16, 16]} className="mt-8" justify="center">

@@ -1,5 +1,10 @@
 import { BasicStatus, PermissionType } from './enum';
 
+export interface UserCaptcha {
+  id?: string;
+  img?: string;
+}
+
 export interface UserToken {
   accessToken?: string;
   refreshToken?: string;
@@ -7,11 +12,13 @@ export interface UserToken {
 
 export interface UserInfo {
   id: string;
-  email: string;
-  username: string;
-  password?: string;
+  userName: string;
+  name: string;
+  introduction: string;
+  deptId?: string;
   avatar?: string;
-  role?: Role;
+  roles?: Role;
+  buttons?: string[];
   status?: BasicStatus;
   permissions?: Permission[];
 }

@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Row, Col, Typography, Timeline, Table, Space, Avatar, Progress } from 'antd';
 import { ColumnsType } from 'antd/es/table';
+import { useState } from 'react';
 
 import { fakeAvatars } from '@/_mock/utils';
 import Card from '@/components/card';
@@ -21,17 +22,17 @@ interface DataType {
 }
 
 export default function ProfileTab() {
-  const { username } = useUserInfo();
+  const { userName } = useUserInfo();
   const theme = useThemeToken();
   const AboutItems = [
-    { icon: <Iconify icon="fa-solid:user" size={18} />, label: 'Full Name', val: username },
+    { icon: <Iconify icon="fa-solid:user" size={18} />, label: 'Full Name', val: userName },
     { icon: <Iconify icon="eos-icons:role-binding" size={18} />, label: 'Role', val: 'Developer' },
     { icon: <Iconify icon="tabler:location-filled" size={18} />, label: 'Country', val: 'USA' },
     { icon: <Iconify icon="ion:language" size={18} />, label: 'Language', val: 'English' },
     { icon: <Iconify icon="ph:phone-fill" size={18} />, label: 'Contact', val: '(123)456-7890' },
-    { icon: <Iconify icon="ic:baseline-email" size={18} />, label: 'Email', val: username },
+    { icon: <Iconify icon="ic:baseline-email" size={18} />, label: 'Email', val: userName },
   ];
-
+  console.log(AboutItems);
   const ConnectionsItems = [
     {
       avatar: faker.image.avatarLegacy(),
@@ -68,7 +69,7 @@ export default function ProfileTab() {
       connected: faker.datatype.boolean(),
     },
   ];
-
+  console.log(ConnectionsItems);
   const TeamItems = [
     {
       avatar: <Iconify icon="devicon:react" size={36} />,
@@ -102,7 +103,7 @@ export default function ProfileTab() {
       tag: <ProTag>Marketing</ProTag>,
     },
   ];
-
+  console.log(TeamItems);
   const fakeProjectItems = () => {
     const arr: DataType[] = [];
     for (let i = 0; i <= 25; i += 1) {
@@ -168,6 +169,34 @@ export default function ProfileTab() {
       ),
     },
   ];
+
+  const [pagePer, setPagePer] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 6, // 每页显示6条数据
+      total: fakeProjectItems.length, // 总数据量
+    },
+  });
+  // let state = {
+  //   pagination: {
+  //     current: 1,
+  //     pageSize: 10,
+  //     total: fakeProjectItems.length,
+  //   },
+  //   pageSizeOptions: ['5', '10', '20', '50'], // 可供选择的分页数量
+  //   pageSizeValue: 10, // 默认选中的分页数量
+  // };
+
+  // 当分页数量改变时的处理函数
+  // @ts-ignore
+  const handleTableChange = (pagination, filters, sorter) => {
+    setPagePer({
+      pagination: {
+        ...pagination,
+        current: pagination.current,
+      },
+    });
+  };
 
   return (
     <>
@@ -270,7 +299,7 @@ export default function ProfileTab() {
           </Card>
         </Col>
       </Row>
-      <Row gutter={[16, 16]} className="mt-4">
+      {/* <Row gutter={[16, 16]} className="mt-4">
         <Col span={24} md={12}>
           <Card className="flex-col !items-start">
             <div className="flex w-full items-center justify-between">
@@ -341,7 +370,7 @@ export default function ProfileTab() {
             </div>
           </Card>
         </Col>
-      </Row>
+      </Row> */}
       <Row gutter={[16, 16]} className="mt-4">
         <Col span={24}>
           <Card className="flex-col !items-start">
@@ -352,6 +381,8 @@ export default function ProfileTab() {
                   rowSelection={{ type: 'checkbox' }}
                   columns={ProjectColumns}
                   dataSource={fakeProjectItems()}
+                  pagination={pagePer.pagination}
+                  onChange={handleTableChange}
                 />
               </Scrollbar>
             </div>

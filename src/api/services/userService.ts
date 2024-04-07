@@ -1,16 +1,23 @@
-import apiClient from '../apiClient';
+import apiClient from '@/api/apiClient';
 
-import { UserInfo, UserToken } from '#/entity';
+import { UserCaptcha, UserInfo, UserToken } from '#/entity';
 
-export interface SignInReq {
+export interface LoginReq {
   username: string;
   password: string;
+  code: string;
+  uuid: string;
+  remember: boolean;
 }
 
-export interface SignUpReq extends SignInReq {
+export interface SignUpReq extends LoginReq {
   email: string;
 }
-export type SignInRes = UserToken & { user: UserInfo };
+export type LoginRes = UserToken;
+
+export type UserInfoRes = UserInfo;
+
+export type CaptchaRes = UserCaptcha;
 
 export enum UserApi {
   SignIn = '/auth/signin',
@@ -20,14 +27,19 @@ export enum UserApi {
   User = '/user',
 }
 
-const signin = (data: SignInReq) => apiClient.post<SignInRes>({ url: UserApi.SignIn, data });
-const signup = (data: SignUpReq) => apiClient.post<SignInRes>({ url: UserApi.SignUp, data });
+const captcha = () => apiClient.get<CaptchaRes>({ url: 'http://localhost:8090/api/v1/captcha' });
+// eslint-disable-next-line prettier/prettier
+const login = (data: LoginReq) => apiClient.post<LoginRes>({ url: 'http://localhost:8090/api/v1/login', data });
+const userInfo = () => apiClient.get<UserInfoRes>({ url: 'http://localhost:8090/api/v1/info' });
+const register = (data: SignUpReq) => apiClient.post<LoginRes>({ url: UserApi.SignUp, data });
 const logout = () => apiClient.get({ url: UserApi.Logout });
 const findById = (id: string) => apiClient.get<UserInfo[]>({ url: `${UserApi.User}/${id}` });
 
 export default {
-  signin,
-  signup,
+  captcha,
+  userInfo,
+  login,
+  signup: register,
   findById,
   logout,
 };

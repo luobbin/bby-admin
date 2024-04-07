@@ -53,6 +53,7 @@ function transformPermissionToMenuRoutes(
   permissions: Permission[],
   flattenedPermissions: Permission[],
 ) {
+  // 处理路由转换成后台管理菜单
   return permissions.map((permission) => {
     const {
       route,

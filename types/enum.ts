@@ -4,12 +4,13 @@ export enum BasicStatus {
 }
 
 export enum ResultEnum {
-  SUCCESS = 0,
+  SUCCESS = 200,
   ERROR = -1,
   TIMEOUT = 401,
 }
 
 export enum StorageEnum {
+  Captcha = 'captcha',
   User = 'user',
   Token = 'token',
   Settings = 'settings',

@@ -3,9 +3,11 @@ import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
 import { isEmpty } from 'ramda';
 
 import { t } from '@/locales/i18n';
+import { getItem } from '@/utils/storage';
 
 import { Result } from '#/api';
-import { ResultEnum } from '#/enum';
+import { UserToken } from '#/entity';
+import { ResultEnum, StorageEnum } from '#/enum';
 
 // 创建 axios 实例
 const axiosInstance = axios.create({
@@ -18,7 +20,9 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     // 在请求被发送之前做些什么
-    config.headers.Authorization = 'Bearer Token';
+    const userToken = getItem<UserToken>(StorageEnum.Token) || {};
+    console.log('获取到的token：', userToken);
+    config.headers.Authorization = `Bearer ${userToken.accessToken}`;
     return config;
   },
   (error) => {
@@ -31,22 +35,21 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (res: AxiosResponse<Result>) => {
     if (!res.data) throw new Error(t('sys.api.apiRequestFailed'));
-
-    const { status, data, message } = res.data;
+    const { code, data, msg } = res.data;
     // 业务请求成功
-    const hasSuccess = data && Reflect.has(res.data, 'status') && status === ResultEnum.SUCCESS;
+    const hasSuccess = data && Reflect.has(res.data, 'code') && code === ResultEnum.SUCCESS;
     if (hasSuccess) {
       return data;
     }
 
     // 业务请求错误
-    throw new Error(message || t('sys.api.apiRequestFailed'));
+    throw new Error(msg || t('sys.api.apiRequestFailed'));
   },
   (error: AxiosError<Result>) => {
     const { response, message } = error || {};
     let errMsg = '';
     try {
-      errMsg = response?.data?.message || message;
+      errMsg = response?.data?.msg || message;
     } catch (error) {
       throw new Error(error as unknown as string);
     }

@@ -49,8 +49,10 @@
       "sendEmailButton": "发送邮件",
 
       "loginSuccessTitle": "登录成功",
+      "captchaSuccessTitle": "验证码获取成功",
       "loginSuccessDesc": "欢迎回来",
 
+      "captchaPlaceholder": "请输入验证码",
       "accountPlaceholder": "请输入账号",
       "passwordPlaceholder": "请输入密码",
       "confirmPasswordPlaceholder": "请输入确认密码",
@@ -62,6 +64,7 @@
 
       "userName": "账号",
       "password": "密码",
+      "captcha": "验证码",
       "confirmPassword": "确认密码",
       "email": "邮箱",
       "smsCode": "短信验证码",

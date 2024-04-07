@@ -1,30 +1,70 @@
-import { Alert, Button, Checkbox, Col, Divider, Form, Input, Row } from 'antd';
-import { useState } from 'react';
+import { Alert, Button, Checkbox, Col, Form, Input, Row } from 'antd';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AiFillGithub, AiFillGoogleCircle, AiFillWechat } from 'react-icons/ai';
 
 import { DEFAULT_USER, TEST_USER } from '@/_mock/assets';
-import { SignInReq } from '@/api/services/userService';
-import { useSignIn } from '@/store/userStore';
+import { LoginReq } from '@/api/services/userService';
+import { useLogin, useCaptcha } from '@/store/userStore';
 import ProTag from '@/theme/antd/components/tag';
 import { useThemeToken } from '@/theme/hooks';
 
-import { LoginStateEnum, useLoginStateContext } from './providers/LoginStateProvider';
+// import { LoginStateEnum, useLoginStateContext } from './providers/LoginStateProvider';
 
 function LoginForm() {
+  // 加载语言包
   const { t } = useTranslation();
+  // 颜色主题
   const themeToken = useThemeToken();
   const [loading, setLoading] = useState(false);
+  // 切换登录方式
+  // const { loginState, setLoginState } = useLoginStateContext();
+  // if (loginState !== LoginStateEnum.LOGIN) return null;
+  // 验证码生成
+  const [captchaImg, setCaptchaImg] = useState('');
+  const [uuidStr, setUuid] = useState('');
+  // 验证码获取并生成
+  const getCaptcha = useCaptcha();
+  useEffect(() => {
+    const handleCaptcha2 = async () => {
+      setLoading(true);
+      try {
+        await getCaptcha().then((res) => {
+          // console.log('初始化', res);
+          if (res !== undefined && res.img) {
+            setCaptchaImg(res.img);
+            // @ts-ignore
+            setUuid(res.id);
+          }
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    handleCaptcha2();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const { loginState, setLoginState } = useLoginStateContext();
-  const signIn = useSignIn();
-
-  if (loginState !== LoginStateEnum.LOGIN) return null;
-
-  const handleFinish = async ({ username, password }: SignInReq) => {
+  const handleCaptcha = async () => {
     setLoading(true);
     try {
-      await signIn({ username, password });
+      const res = await getCaptcha();
+      if (res !== undefined && res.img) {
+        setCaptchaImg(res.img);
+        // @ts-ignore
+        setUuid(res.id);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  // 提交后进行登录数据发送
+  const login = useLogin();
+  const handleFinish = async ({ username, password, code, uuid, remember }: LoginReq) => {
+    setLoading(true);
+    uuid = uuidStr;
+    console.log('uuid', uuid);
+    try {
+      await login({ username, password, code, uuid, remember });
     } finally {
       setLoading(false);
     }
@@ -39,6 +79,7 @@ function LoginForm() {
           remember: true,
           username: DEFAULT_USER.username,
           password: DEFAULT_USER.password,
+          code: '',
         }}
         onFinish={handleFinish}
       >
@@ -88,6 +129,21 @@ function LoginForm() {
         <Form.Item>
           <Row>
             <Col span={12}>
+              <Form.Item
+                name="code"
+                rules={[{ required: true, message: t('sys.login.captchaPlaceholder') }]}
+              >
+                <Input placeholder={t('sys.login.captcha')} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <img width={120} src={captchaImg} alt="点击替换验证码" onClick={handleCaptcha} />
+            </Col>
+          </Row>
+        </Form.Item>
+        <Form.Item>
+          <Row>
+            <Col span={12}>
               <Form.Item name="remember" valuePropName="checked" noStyle>
                 <Checkbox>{t('sys.login.rememberMe')}</Checkbox>
               </Form.Item>
@@ -103,7 +159,7 @@ function LoginForm() {
           </Button>
         </Form.Item>
 
-        <Row align="middle" gutter={8}>
+        {/* <Row align="middle" gutter={8}>
           <Col span={9} flex="1">
             <Button
               className="w-full !text-sm"
@@ -123,15 +179,7 @@ function LoginForm() {
           <Col span={6} flex="1" onClick={() => setLoginState(LoginStateEnum.REGISTER)}>
             <Button className="w-full !text-sm">{t('sys.login.signUpFormTitle')}</Button>
           </Col>
-        </Row>
-
-        <Divider className="!text-xs">{t('sys.login.otherSignIn')}</Divider>
-
-        <div className="flex cursor-pointer justify-around text-2xl">
-          <AiFillGithub />
-          <AiFillWechat />
-          <AiFillGoogleCircle />
-        </div>
+        </Row> */}
       </Form>
     </>
   );
