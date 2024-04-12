@@ -1,5 +1,6 @@
-import { Typography, Upload } from 'antd';
-import { UploadChangeParam, UploadFile, UploadProps } from 'antd/es/upload';
+import { Typography, Upload, message } from 'antd';
+import { UploadChangeParam, UploadFile, UploadProps, RcFile } from 'antd/es/upload';
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 
 import { fBytes } from '@/utils/format-number';
@@ -7,28 +8,60 @@ import { fBytes } from '@/utils/format-number';
 import { Iconify } from '../icon';
 
 import { StyledUploadAvatar } from './styles';
-import { beforeAvatarUpload, getBlobUrl } from './utils';
+import { beforeAvatarUpload, getBase64 } from "./utils";
+import { ImgItemRes, ItemReq, useAdd } from '@/api/services/uploadImgService';
 
+// @ts-ignore
 interface Props extends UploadProps {
   defaultAvatar?: string;
   helperText?: React.ReactElement | string;
+  onChange: (newImg: string) => void // 通过参数传给父组件的值
 }
+const DEFAULT_IMG = import.meta.env.VITE_DEFAULT_IMG as string;
 export function UploadAvatar({ helperText, defaultAvatar = '', ...other }: Props) {
+  defaultAvatar = defaultAvatar==''?DEFAULT_IMG:defaultAvatar
+  console.log("获取到图片：",defaultAvatar);
+  const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>(defaultAvatar);
-
+  const [imageBase64, setImageBase64] = useState<string>('');
   const [isHover, setIsHover] = useState(false);
   const handelHover = (hover: boolean) => {
     setIsHover(hover);
   };
 
-  const handleChange: UploadProps['onChange'] = (info: UploadChangeParam<UploadFile>) => {
+  const beforeUpload = (file: RcFile) => {
+    const ifUpload = beforeAvatarUpload(file);
+    getBase64(file, (base64Img) => {
+      //console.log("转换的base64", base64Img);
+      setImageBase64(base64Img);
+    });
+    return ifUpload;
+  }
+  
+  const add = useAdd();
+  const handleChange: UploadProps['onChange'] = async (info: UploadChangeParam<UploadFile>) => {
+    console.log("开始上传了",info.file.status)
     if (info.file.status === 'uploading') {
+      setLoading(true);
       return;
     }
-    if (['done', 'error'].includes(info.file.status!)) {
-      // TODO: Get this url from response in real world.
-      setImageUrl(getBlobUrl(info.file.originFileObj!));
+
+    if (['done','error'].includes(info.file.status!)) {
+      const imgReq: ItemReq = {
+        'source': "3",
+        'type': "3",
+        'file': imageBase64,
+      }
+      // @ts-ignore
+      const resImg: ImgItemRes = await add(imgReq);
+      if (resImg && Reflect.has(resImg,'full_path')){
+        setImageUrl(resImg.full_path);
+        other.onChange(resImg.full_path);
+      }else {
+        message.error('图片上传失败，请重新上传!');
+      }
     }
+    setLoading(false);
   };
 
   const renderPreview = <img src={imageUrl} alt="" className="absolute rounded-full" />;
@@ -61,6 +94,7 @@ export function UploadAvatar({ helperText, defaultAvatar = '', ...other }: Props
     <Typography.Text type="secondary" style={{ fontSize: 12 }}>
       Allowed *.jpeg, *.jpg, *.png, *.gif
       <br /> max size of {fBytes(3145728)}
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
     </Typography.Text>
   );
   const renderHelpText = <div className="text-center">{helperText || defaultHelperText}</div>;
@@ -68,12 +102,13 @@ export function UploadAvatar({ helperText, defaultAvatar = '', ...other }: Props
   return (
     <StyledUploadAvatar>
       <Upload
+        action={undefined}
         name="avatar"
         showUploadList={false}
         listType="picture-circle"
         className="avatar-uploader !flex items-center justify-center"
         {...other}
-        beforeUpload={beforeAvatarUpload}
+        beforeUpload={beforeUpload}
         onChange={handleChange}
       >
         {renderContent}

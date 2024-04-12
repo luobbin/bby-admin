@@ -6,7 +6,7 @@ import { Upload, UploadAvatar, UploadBox } from '@/components/upload';
 
 export default function UploadPage() {
   const [thumbnail, setThumbnail] = useState<boolean>(false);
-
+  const [thumb, setThumb] = useState('');
   const onChange = (checked: boolean) => {
     setThumbnail(checked);
   };
@@ -41,7 +41,7 @@ export default function UploadPage() {
         alignItems: 'center',
       }}
     >
-      <UploadAvatar />
+      <UploadAvatar helperText="" defaultAvatar={thumb} onChange={setThumb} />
     </Card>
   );
   const UploadBoxTab = (

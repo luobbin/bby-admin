@@ -9,7 +9,7 @@ import userService, { LoginReq } from '@/api/services/userService';
 import { getItem, removeItem, setItem } from '@/utils/storage';
 
 import { UserCaptcha, UserInfo, UserToken } from '#/entity';
-import { StorageEnum, PermissionType, BasicStatus } from '#/enum';
+import { StorageEnum, PermissionType } from '#/enum';
 
 const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
 
@@ -116,18 +116,213 @@ export const useCaptcha = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 };
+/**
+ * User permission BackGround Website
+ */
+const WEBSITE_PERMISSION = {
+  id: '2',
+  parentId: '',
+  label: 'sys.menu.website',
+  name: 'Website',
+  icon: 'ic-management',
+  type: PermissionType.CATALOGUE,
+  route: 'website',
+  order: 2,
+  children: [
+    {
+      id: '21',
+      parentId: '2',
+      label: 'sys.menu.config',
+      name: 'Config',
+      type: PermissionType.MENU,
+      route: 'config',
+      component: '/website/config/index.tsx',
+    },
+    {
+      id: '22',
+      parentId: '2',
+      label: 'sys.menu.article',
+      name: 'Article',
+      type: PermissionType.MENU,
+      route: 'article',
+      component: '/website/article/index.tsx',
+    },
+    {
+      id: '23',
+      parentId: '2',
+      label: 'sys.menu.articleEdit',
+      name: 'ArticleEdit',
+      type: PermissionType.MENU,
+      route: 'articleEdit',
+      hide: true,
+      component: '/website/article/articleEdit/index.tsx',
+    },
+  ],
+};
+/**
+ * User permission BackGround Facilitator
+ */
+const FACILITATOR_PERMISSION = {
+  id: '7',
+  parentId: '',
+  label: 'sys.menu.facilitator',
+  name: 'Facilitator',
+  icon: 'ic-management',
+  type: PermissionType.CATALOGUE,
+  route: 'facilitator',
+  order: 7,
+  children: [
+    {
+      id: '71',
+      parentId: '7',
+      label: 'sys.menu.company',
+      name: 'Company',
+      type: PermissionType.MENU,
+      route: 'company',
+      component: '/facilitator/company/index.tsx',
+    },
+    {
+      id: '72',
+      parentId: '7',
+      label: 'sys.menu.solution',
+      name: 'Solution',
+      type: PermissionType.MENU,
+      route: 'solution',
+      component: '/facilitator/solution/index.tsx',
+    },
+    {
+      id: '73',
+      parentId: '7',
+      label: 'sys.menu.solutionBusiness',
+      name: 'SolutionBusiness',
+      type: PermissionType.MENU,
+      route: 'solutionBusiness',
+      component: '/facilitator/solutionBusiness/index.tsx',
+    },
+    {
+      id: '74',
+      parentId: '7',
+      label: 'sys.menu.companyExamine',
+      name: 'CompanyExamine',
+      type: PermissionType.MENU,
+      route: 'companyExamine',
+      component: '/facilitator/companyExamine/index.tsx',
+    },
+    {
+      id: '75',
+      parentId: '7',
+      label: 'sys.menu.case',
+      name: 'Case',
+      type: PermissionType.MENU,
+      route: 'case',
+      component: '/facilitator/case/index.tsx',
+    },
+    {
+      id: '76',
+      parentId: '7',
+      label: 'sys.menu.companyEdit',
+      name: 'CompanyEdit',
+      type: PermissionType.MENU,
+      route: 'companyEdit',
+      hide: true,
+      component: '/facilitator/company/companyEdit.tsx',
+    },
+    {
+      id: '77',
+      parentId: '7',
+      label: 'sys.menu.solutionEdit',
+      name: 'SolutionEdit',
+      type: PermissionType.MENU,
+      route: 'solutionEdit',
+      hide: true,
+      component: '/facilitator/solution/solutionEdit.tsx',
+    },
+    {
+      id: '78',
+      parentId: '7',
+      label: 'sys.menu.caseEdit',
+      name: 'CaseEdit',
+      type: PermissionType.MENU,
+      route: 'caseEdit',
+      hide: true,
+      component: '/facilitator/case/caseEdit.tsx',
+    },
+  ],
+};
+
+/**
+ * User permission BackGround Customer
+ */
+const CUSTOMER_PERMISSION = {
+  id: '8',
+  parentId: '',
+  label: 'sys.menu.customer',
+  name: 'Customer',
+  icon: 'ic-management',
+  type: PermissionType.CATALOGUE,
+  route: 'customer',
+  order: 8,
+  children: [
+    {
+      id: '82',
+      parentId: '8',
+      label: 'sys.menu.member',
+      name: 'Member',
+      type: PermissionType.MENU,
+      route: 'member',
+      component: '/customer/member/index.tsx',
+    },
+    {
+      id: '81',
+      parentId: '8',
+      label: 'sys.menu.demand',
+      name: 'Demand',
+      type: PermissionType.MENU,
+      route: 'demand',
+      component: '/customer/demand/index.tsx',
+    },
+    {
+      id: '82',
+      parentId: '8',
+      label: 'sys.menu.demandEdit',
+      name: 'DemandEdit',
+      type: PermissionType.MENU,
+      route: 'demandEdit',
+      hide: true,
+      component: '/customer/demand/demandEdit.tsx',
+    },
+    {
+      id: '83',
+      parentId: '8',
+      label: 'sys.menu.demandTrial',
+      name: 'DemandTrial',
+      type: PermissionType.MENU,
+      route: 'demandTrial',
+      component: '/customer/demandTrial/index.tsx',
+    },
+    {
+      id: '84',
+      parentId: '8',
+      label: 'sys.menu.solutionTrial',
+      name: 'SolutionTrial',
+      type: PermissionType.MENU,
+      route: 'solutionTrial',
+      component: '/customer/solutionTrial/index.tsx',
+    },
+  ],
+};
 
 /**
  * User permission BackGround Column
  */
-const COLUMN_PERMISSION = {
-  id: '1',
+const CATEGORIZE_PERMISSION = {
+  id: '9',
   parentId: '',
-  label: 'sys.menu.column',
-  name: 'Column',
-  icon: 'ic-analysis',
+  label: 'sys.menu.categorize',
+  name: 'Categorize',
+  icon: 'ic-management',
   type: PermissionType.CATALOGUE,
-  route: 'column',
+  route: 'categorize',
   order: 9,
   children: [
     {
@@ -136,8 +331,8 @@ const COLUMN_PERMISSION = {
       label: 'sys.menu.support',
       name: 'Support',
       type: PermissionType.MENU,
-      route: 'Support',
-      component: '/column/support/index.tsx',
+      route: 'support',
+      component: '/categorize/support/index.tsx',
     },
     {
       id: '92',
@@ -146,7 +341,25 @@ const COLUMN_PERMISSION = {
       name: 'Region',
       type: PermissionType.MENU,
       route: 'region',
-      component: '/column/region/index.tsx',
+      component: '/categorize/region/index.tsx',
+    },
+    {
+      id: '93',
+      parentId: '9',
+      label: 'sys.menu.industry',
+      name: 'Industry',
+      type: PermissionType.MENU,
+      route: 'industry',
+      component: '/categorize/industry/index.tsx',
+    },
+    {
+      id: '94',
+      parentId: '9',
+      label: 'sys.menu.scene',
+      name: 'Scene',
+      type: PermissionType.MENU,
+      route: 'scene',
+      component: '/categorize/scene/index.tsx',
     },
   ],
 };
@@ -184,7 +397,7 @@ const DASHBOARD_PERMISSION = {
     },
   ],
 };
-const MANAGEMENT_PERMISSION = {
+/* const MANAGEMENT_PERMISSION = {
   id: '0901673425580518',
   parentId: '',
   label: 'sys.menu.management',
@@ -577,15 +790,18 @@ const OTHERS_PERMISSION = [
     route: 'blank',
     component: '/sys/others/blank.tsx',
   },
-];
+]; */
 
 export const PERMISSION_LIST = [
-  COLUMN_PERMISSION,
+  WEBSITE_PERMISSION,
+  FACILITATOR_PERMISSION,
+  CUSTOMER_PERMISSION,
+  CATEGORIZE_PERMISSION,
   DASHBOARD_PERMISSION,
-  MANAGEMENT_PERMISSION,
-  COMPONENTS_PERMISSION,
-  FUNCTIONS_PERMISSION,
-  MENU_LEVEL_PERMISSION,
-  ERRORS_PERMISSION,
-  ...OTHERS_PERMISSION,
+  // MANAGEMENT_PERMISSION,
+  // COMPONENTS_PERMISSION,
+  // FUNCTIONS_PERMISSION,
+  // MENU_LEVEL_PERMISSION,
+  // ERRORS_PERMISSION,
+  // ...OTHERS_PERMISSION,
 ];

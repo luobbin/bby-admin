@@ -37,7 +37,7 @@ axiosInstance.interceptors.response.use(
     if (!res.data) throw new Error(t('sys.api.apiRequestFailed'));
     const { code, data, msg } = res.data;
     // 业务请求成功
-    const hasSuccess = data && Reflect.has(res.data, 'code') && code === ResultEnum.SUCCESS;
+    const hasSuccess = res.data && Reflect.has(res.data, 'code') && code === ResultEnum.SUCCESS;
     if (hasSuccess) {
       return data;
     }
@@ -81,10 +81,46 @@ class APIClient {
     return this.request({ ...config, method: 'DELETE' });
   }
 
+  postString<T = any>(config: AxiosRequestConfig): Promise<T> {
+    return this.requestString({ ...config, method: 'POST' });
+  }
+
+  putString<T = any>(config: AxiosRequestConfig): Promise<T> {
+    return this.requestString({ ...config, method: 'PUT' });
+  }
+
+  deleteString<T = any>(config: AxiosRequestConfig): Promise<T> {
+    return this.requestString({ ...config, method: 'DELETE' });
+  }
+
   request<T = any>(config: AxiosRequestConfig): Promise<T> {
     return new Promise((resolve, reject) => {
       axiosInstance
         .request<any, AxiosResponse<Result>>(config)
+        .then((res: AxiosResponse<Result>) => {
+          resolve(res as unknown as Promise<T>);
+        })
+        .catch((e: Error | AxiosError) => {
+          reject(e);
+        });
+    });
+  }
+
+  requestString<T = any>(config: AxiosRequestConfig): Promise<T> {
+    config.params = JSON.stringify(config.params);
+    const newConfig = {
+      url: config.url,
+      method: config.method,
+      data: config.params,
+      headers: {
+        'content-type': 'application/json',
+      },
+    };
+    console.log('传值为：', newConfig);
+    return new Promise((resolve, reject) => {
+      // @ts-ignore
+      axiosInstance
+        .request<any, AxiosResponse<Result>>(newConfig)
         .then((res: AxiosResponse<Result>) => {
           resolve(res as unknown as Promise<T>);
         })

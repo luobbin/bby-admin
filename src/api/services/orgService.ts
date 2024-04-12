@@ -6,7 +6,7 @@ export enum OrgApi {
   Org = '/org',
 }
 
-const getOrgList = () => apiClient.get<Organization[]>({ url: OrgApi.Org });
+const getOrgList = () => apiClient.get<Organization[]>({ url: 'http://localhost:3001/api/org' });
 
 export default {
   getOrgList,

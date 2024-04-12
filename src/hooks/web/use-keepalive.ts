@@ -33,6 +33,7 @@ export default function useKeepAlive() {
       }
 
       tabs.splice(deleteTabIndex, 1);
+      // console.log("当前面包屑列表",tabs)
       setTabs([...tabs]);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

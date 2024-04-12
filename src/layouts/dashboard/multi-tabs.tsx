@@ -118,25 +118,25 @@ export default function MultiTabs({ offsetTop = false }: Props) {
       const { key, domEvent } = menuInfo;
       domEvent.stopPropagation();
       switch (key) {
-        case MultiTabOperation.REFRESH:
+        case MultiTabOperation.REFRESH://刷新
           refreshTab(tab.key);
           break;
-        case MultiTabOperation.CLOSE:
+        case MultiTabOperation.CLOSE://关闭当前
           closeTab(tab.key);
           break;
-        case MultiTabOperation.CLOSEOTHERS:
+        case MultiTabOperation.CLOSEOTHERS://关闭其他
           closeOthersTab(tab.key);
           break;
-        case MultiTabOperation.CLOSELEFT:
+        case MultiTabOperation.CLOSELEFT://关闭左侧标签
           closeLeft(tab.key);
           break;
-        case MultiTabOperation.CLOSERIGHT:
+        case MultiTabOperation.CLOSERIGHT://关闭右侧标签
           closeRight(tab.key);
           break;
-        case MultiTabOperation.CLOSEALL:
+        case MultiTabOperation.CLOSEALL://关闭所有
           closeAll();
           break;
-        case MultiTabOperation.FULLSCREEN:
+        case MultiTabOperation.FULLSCREEN://内容全屏
           toggleFullScreen();
           break;
         default:

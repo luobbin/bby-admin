@@ -3,6 +3,47 @@ export enum BasicStatus {
   ENABLE,
 }
 
+export enum IfShowStatus {
+  INIT,
+  ENABLE,
+  DISABLE,
+}
+
+export enum IfHotStatus {
+  DISABLE,
+  ENABLE,
+}
+
+export enum IfCheckStatus {
+  待定,
+  通过,
+  驳回,
+}
+
+export enum BusinessStatus {
+  待处理,
+  对接中,
+  对接成功,
+  对接失败,
+}
+
+export enum IfDelStatus {
+  NO,
+  YES,
+}
+
+export enum IfServiceStatus {
+  否,
+  是,
+}
+export enum IfVisitStatus {
+  否,
+  是,
+}
+export enum SourceStatus {
+  sys,
+  cust,
+}
 export enum ResultEnum {
   SUCCESS = 200,
   ERROR = -1,

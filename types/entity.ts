@@ -1,4 +1,4 @@
-import { BasicStatus, PermissionType } from './enum';
+import { BasicStatus, IfShowStatus, PermissionType } from './enum';
 
 export interface UserCaptcha {
   id?: string;
@@ -58,4 +58,38 @@ export interface Role {
   order?: number;
   desc?: string;
   permission?: Permission[];
+}
+
+export interface Support {
+  id: string;
+  name: string;
+  ifShow: IfShowStatus;
+  createdAt: string;
+}
+export interface Region {
+  id: string;
+  pid: number;
+  name: string;
+  ifShow: IfShowStatus;
+  createdAt: string;
+}
+export interface Industry {
+  id: string;
+  pid: number;
+  name: string;
+  ifShow: IfShowStatus;
+  createdAt: string;
+}
+export interface Scene {
+  id: string;
+  pid: number;
+  name: string;
+  ifShow: IfShowStatus;
+  createdAt: string;
+}
+export interface PageRes<T = any> {
+  pageSize: number;
+  pageIndex: number;
+  count: number;
+  list?: T[];
 }

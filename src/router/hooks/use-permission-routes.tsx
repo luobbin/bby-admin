@@ -61,11 +61,11 @@ function transformPermissionToMenuRoutes(
       label,
       icon,
       order,
-      hide,
-      hideTab,
-      status,
+      hide,//是否隐藏菜单栏
+      hideTab,//是否隐藏标签栏
+      status,//是否禁用项目
       frameSrc,
-      newFeature,
+      newFeature,//是否标记新状态
       component,
       parentId,
       children = [],
@@ -129,6 +129,7 @@ function transformPermissionToMenuRoutes(
  * @returns {string} - The complete route after splicing
  */
 function getCompleteRoute(permission: Permission, flattenedPermissions: Permission[], route = '') {
+  // console.log(permission);
   const currentRoute = route ? `/${permission.route}${route}` : `/${permission.route}`;
 
   if (permission.parentId) {
