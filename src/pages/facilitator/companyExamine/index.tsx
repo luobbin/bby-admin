@@ -54,8 +54,9 @@ export default function CompanyPage() {
     },
     {
       title: "申请用户",
-      dataIndex: "tUser.account",
-      width: 300
+      dataIndex: "tUser",
+      width: 300,
+      render: (tUser)=><div>{tUser.account}</div>
     },
     {
       title: "审核状态",
@@ -205,8 +206,6 @@ export default function CompanyPage() {
     }
   };
 
-
-
   return (
     <Space direction="vertical" size="large" className="w-full">
       <Card>
@@ -218,28 +217,16 @@ export default function CompanyPage() {
               </Form.Item>
             </Col>
             <Col span={24} lg={6}>
-              <Form.Item<SearchFormFieldType> label="状态" name="ifShow" className="!mb-0">
+              <Form.Item<SearchFormFieldType> label="审核状态" name="ifCheck" className="!mb-0">
                 <Select>
                   <Select.Option value="0">
                     <ProTag color="primary">待定</ProTag>
                   </Select.Option>
                   <Select.Option value="1">
-                    <ProTag color="success">显示</ProTag>
+                    <ProTag color="success">通过</ProTag>
                   </Select.Option>
                   <Select.Option value="2">
-                    <ProTag color="error">禁用</ProTag>
-                  </Select.Option>
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={24} lg={6}>
-              <Form.Item<SearchFormFieldType> label="热门" name="ifHot" className="!mb-0">
-                <Select>
-                  <Select.Option value="0">
-                    <ProTag color="error">否</ProTag>
-                  </Select.Option>
-                  <Select.Option value="1">
-                    <ProTag color="success">是</ProTag>
+                    <ProTag color="error">驳回</ProTag>
                   </Select.Option>
                 </Select>
               </Form.Item>

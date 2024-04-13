@@ -1,7 +1,9 @@
 import { Form, Modal, Input, Button, Select } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { ItemReq, useAdd, useUpdate } from '@/api/services/demandTrialService';
+import { ItemReq, useAdd, useUpdate } from '@/api/services/demandTrailService';
+import { usePage as useCompanyPage, SearchReq as SearchCompany} from '@/api/services/companyService';
+import { usePage as useDemandPage, SearchReq as SearchDemand} from '@/api/services/demandService';
 
 export type ItemModalProps = {
   formValue: ItemReq;
@@ -10,15 +12,60 @@ export type ItemModalProps = {
   onOk: VoidFunction;
   onCancel: VoidFunction;
 };
-export function DemandTrialModal({ title, show, formValue, onOk, onCancel }: ItemModalProps) {
+export function DemandTrailModal({ title, show, formValue, onOk, onCancel }: ItemModalProps) {
   const [form] = Form.useForm();
   const [companyList, setCompanyList] = useState([]);
+  const getCompanyList = useCompanyPage();
   const [demandList, setDemandList] = useState([]);
+  const getDemandList = useDemandPage();
+
+  useEffect(() => {
+    //类目获取
+    const handleList = async () => {
+      try {
+        // @ts-ignore
+        const companyReq: SearchCompany = {
+          pageIndex: 1,
+          pageSize: 10,
+        };
+        await getCompanyList(companyReq).then((res) => {
+          // @ts-ignore
+          const companyRes: PageRes = res;
+          if (companyRes && Reflect.has(companyRes, 'list')) {
+            // @ts-ignore
+            companyRes.list.push({ id: 0, name: '未选择',});
+            // @ts-ignore
+            setCompanyList(companyRes.list);
+          }
+        });
+
+        // @ts-ignore
+        const demandReq: SearchDemand = {
+          pageIndex: 1,
+          pageSize: 10,
+        };
+        await getDemandList(demandReq).then((res) => {
+          // @ts-ignore
+          const demandRes: PageRes = res;
+          if (demandRes && Reflect.has(demandRes, 'list')) {
+            // @ts-ignore
+            demandRes.list.push({ id: 0, name: '未选择', });
+            // @ts-ignore
+            setDemandList(demandRes.list);
+          }
+        });
+      } finally {
+        console.log('类目加载完成');
+      }
+    };
+    handleList();
+  }, []);
+
   useEffect(() => {
     form.setFieldsValue({ ...formValue });
-    setCompanyList([]);
-    setDemandList([]);
   }, [formValue, form]);
+
+  //更新|新增
   const add = useAdd();
   const update = useUpdate();
   const handleFinish = async () => {
@@ -70,7 +117,7 @@ export function DemandTrialModal({ title, show, formValue, onOk, onCancel }: Ite
         <Form.Item<ItemReq> label="对接公司" name="companyId">
           <Select
             fieldNames={{
-              label: 'account',
+              label: 'name',
               value: 'id',
             }}
             style={{ width: 120 }}

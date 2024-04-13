@@ -38,6 +38,7 @@ const DEFAULE_VAL: ItemReq = {
 
 export default function DemandEditPage() {
   const [form] = Form.useForm();
+
   // 查询所有分类: 用户，地区，行业，解决方案
   const [memberList, setMemberList] = useState([]);
   const getMemberList = useMemberPage();
@@ -47,7 +48,27 @@ export default function DemandEditPage() {
   const getIndustryList = useIndustryPage();
   const [solutionList, setSolutionList] = useState([]);
   const getSolutionList = useSolutionPage();
+  // 初始化数据
+  const currentLocation = useLocation();
+  const [submitTitle, setSubmitTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [qualification, setQualification] = useState('');
+  const [others, setOthers] = useState('');
+  const [beginTime, setBeginTime] = useState(dayjs().format(dateFormat));
+  const [endTime, setEndTime] = useState(dayjs().format(dateFormat));
   useEffect(() => {
+    if (currentLocation.state){
+      const { title, params } = currentLocation.state;
+      form.setFieldsValue(title === '创建'? DEFAULE_VAL : params);
+      setSubmitTitle(title);
+      console.log("初始化数据", form.getFieldsValue());
+      setContent(form.getFieldValue('content'));
+      setQualification(form.getFieldValue('qualification'));
+      setOthers(form.getFieldValue('others'));
+      setBeginTime(form.getFieldValue('beginTime'));
+      setEndTime(form.getFieldValue('endTime'));
+    }
+    //加载类目
     const handleList = async () => {
       try {
         // @ts-ignore
@@ -128,45 +149,24 @@ export default function DemandEditPage() {
     handleList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [formValue, setFormValue] = useState<ItemReq>();
-  const [loading, setLoading] = useState(false);
-  const [submitTitle, setSubmitTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [qualification, setQualification] = useState('');
-  const [others, setOthers] = useState('');
-  const [beginTime, setBeginTime] = useState(dayjs().format(dateFormat));
-  const [endTime, setEndTime] = useState(dayjs().format(dateFormat));
-  // 初始化数据
-  const currentLocation = useLocation();
-  useEffect(() => {
-    if (currentLocation.state){
-      const { title, params } = currentLocation.state;
-      setFormValue(title === '创建'? DEFAULE_VAL : params);
-      setSubmitTitle(title);
-    }
-    console.log("初始化数据", formValue);
-    if (formValue){
-      console.log('formValue',formValue);
-      setEndTime(formValue.endTime);
-      setBeginTime(formValue.beginTime);
-      form.setFieldsValue(formValue);
-    }
 
-  }, [formValue, form]);
   //处理时间
-  const onPickBeginTime: DatePickerProps['onChange'] = (date, dateString) => {
-    console.log(date, dateString);
-    setBeginTime(dateString);
+  const onPickBeginTime: DatePickerProps['onChange'] = (_date, dateString) => {
+    if (dateString){
+      setBeginTime(dateString);
+    }
   };
-  const onPickEndTime: DatePickerProps['onChange'] = (date, dateString) => {
-    console.log(date, dateString);
-    setEndTime(dateString);
+  const onPickEndTime: DatePickerProps['onChange'] = (_date, dateString) => {
+    if (dateString) {
+      setEndTime(dateString);
+    }
   };
 
   // 处理新增|更新
   const add = useAdd();
   const update = useUpdate();
   const { notification } = App.useApp();
+  const [loading, setLoading] = useState(false);
   const handleFinish = async () => {
     setLoading(true);
     form.setFieldValue('endTime',endTime);
@@ -198,7 +198,7 @@ export default function DemandEditPage() {
   return (
     <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
       <Form
-        initialValues={formValue}
+        initialValues={form}
         form={form}
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 18 }}

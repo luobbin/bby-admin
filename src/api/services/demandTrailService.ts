@@ -20,7 +20,7 @@ export interface SearchReq {
   demandId: number;
 }
 
-export interface DemandTrial {
+export interface DemandTrail {
   id: string;
   demandId: number;
   userId: number;
@@ -28,19 +28,19 @@ export interface DemandTrial {
 }
 
 
-export interface PageList extends DemandTrial {
+export interface PageList extends DemandTrail {
   tDemand?: Demand;
   tCompany?: Company;
   tUser: Member;
   createdAt: string;
 }
 
-export type ItemReq = DemandTrial;
+export type ItemReq = DemandTrail;
 
 export type NewItem = Omit<ItemReq, 'id'>;
 
 export enum BaseApi {
-  Uri = '/v1/l-demand-trial',
+  Uri = '/v1/l-demand-trail',
 }
 
 const itemList = (params: SearchReq) =>

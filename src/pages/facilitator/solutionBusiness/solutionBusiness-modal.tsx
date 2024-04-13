@@ -20,9 +20,8 @@ export function SolutionBusinessModal({ title, show, formValue, onOk, onCancel }
   const getMemberList = useMemberPage();
   const [solutionList, setSolutionList] = useState([]);
   const getSolutionList = useSolutionPage();
+
   useEffect(() => {
-    //初始化表单
-    form.setFieldsValue({ ...formValue });
     //加载类目
     const handleList = async () => {
       try {
@@ -63,8 +62,12 @@ export function SolutionBusinessModal({ title, show, formValue, onOk, onCancel }
       }
     };
     handleList();
-  }, [formValue, form]);
+  }, []);
 
+  useEffect(() => {
+    //初始化表单
+    form.setFieldsValue({ ...formValue });
+  }, [formValue,form]);
 
   const add = useAdd();
   const update = useUpdate();

@@ -1,7 +1,11 @@
 import { Form, Modal, Input, Button, Select } from 'antd';
 import { useEffect, useState } from 'react';
 
-import { ItemReq, useAdd, useUpdate } from "@/api/services/solutionTrialService";
+import { ItemReq, useAdd, useUpdate } from "@/api/services/solutionTrailService";
+import { usePage as useMemberPage, SearchReq as SearchMember} from '@/api/services/memberService';
+import { usePage as useSolutionPage, SearchReq as SearchSolution} from '@/api/services/solutionService';
+import { IfDelStatus } from "#/enum.ts";
+import { PageRes } from "#/entity.ts";
 
 export type ItemModalProps = {
   formValue: ItemReq;
@@ -12,13 +16,57 @@ export type ItemModalProps = {
 };
 export function SolutionTrialModal({ title, show, formValue, onOk, onCancel }: ItemModalProps) {
   const [form] = Form.useForm();
-  const [userList, setUserList] = useState([]);
+  const [memberList, setMemberList] = useState([]);
+  const getMemberList = useMemberPage();
   const [solutionList, setSolutionList] = useState([]);
+  const getSolutionList = useSolutionPage();
+  useEffect(() => {
+    //加载类目
+    const handleList = async () => {
+      try {
+        // @ts-ignore
+        const memberReq: SearchMember = {
+          pageIndex: 1,
+          pageSize: 10,
+          ifDel: IfDelStatus.否,
+        };
+        await getMemberList(memberReq).then((res) => {
+          // @ts-ignore
+          const memberRes: PageRes = res;
+          if (memberRes && Reflect.has(memberRes, 'list')) {
+            // @ts-ignore
+            memberRes.list.push({ id: 0, account: '未选择',});
+            // @ts-ignore
+            setMemberList(memberRes.list);
+          }
+        });
+
+        // @ts-ignore
+        const solutionReq: SearchSolution = {
+          pageIndex: 1,
+          pageSize: 10,
+        };
+        await getSolutionList(solutionReq).then((res) => {
+          // @ts-ignore
+          const solutionRes: PageRes = res;
+          if (solutionRes && Reflect.has(solutionRes, 'list')) {
+            // @ts-ignore
+            solutionRes.list.push({ id: 0, name: '未选择', });
+            // @ts-ignore
+            setSolutionList(solutionRes.list);
+          }
+        });
+      } finally {
+        console.log('类目加载完成');
+      }
+    };
+    handleList();
+  }, []);
+
   useEffect(() => {
     form.setFieldsValue({ ...formValue });
-    setUserList([]);
-    setSolutionList([]);
   }, [formValue, form]);
+
   const add = useAdd();
   const update = useUpdate();
   const handleFinish = async () => {
@@ -75,7 +123,7 @@ export function SolutionTrialModal({ title, show, formValue, onOk, onCancel }: I
               value: 'id',
             }}
             style={{ width: 120 }}
-            options={userList}
+            options={memberList}
           />
         </Form.Item>
         <Form.Item<ItemReq> label="解决方案" name="solutionId">

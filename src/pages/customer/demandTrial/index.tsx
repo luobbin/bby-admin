@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 
 import { IconButton, Iconify } from '@/components/icon';
 
-import { PageList, SearchReq, ItemReq, usePage } from '@/api/services/demandTrialService';
-import { DemandTrialModal, ItemModalProps } from './demandTrial-modal.tsx';
+import { PageList, SearchReq, ItemReq, usePage } from '@/api/services/demandTrailService';
+import { DemandTrailModal, ItemModalProps } from './demandTrail-modal';
 
 import { PageRes } from '#/entity';
 
@@ -38,18 +38,21 @@ export default function SolutionBusinessPage() {
   const columns: ColumnsType<PageList> = [
     {
       title: "需求客户",
-      dataIndex: "tUser.account",
-      width: 300
-    },
-    {
-      title: "对接服务商",
-      dataIndex: "tCompany.name",
-      width: 300
+      dataIndex: "tUser",
+      width: 300,
+      render: (tUser)=><div>{tUser.account}</div>
     },
     {
       title: "对接需求",
-      dataIndex: "tDemand.name",
-      width: 300
+      dataIndex: "tDemand",
+      width: 300,
+      render: (tDemand)=><div>{tDemand.name}</div>
+    },
+    {
+      title: "对接服务商",
+      dataIndex: "tCompany",
+      width: 300,
+      render: (tCompany)=><div>{tCompany.name}</div>
     },
     { title: "创建时间", dataIndex: "createdAt", align: "center", width: 300 },
     {
@@ -206,7 +209,7 @@ export default function SolutionBusinessPage() {
               </Form.Item>
               <div className="flex justify-end">
                 <Button onClick={onSearchReset}>重置</Button>
-                <Button type="primary" htmlType="submit" className="ml-4" loading={loading}>
+                <Button type="primary" htmlType="submit" className="ml-4">
                   搜索
                 </Button>
               </div>
@@ -228,9 +231,10 @@ export default function SolutionBusinessPage() {
           dataSource={data}
           pagination={pagePer.pagination}
           onChange={onChangePage}
+          loading={loading}
         />
 
-        <DemandTrialModal {...modalProps} />
+        <DemandTrailModal {...modalProps} />
       </Card>
     </Space>
   );

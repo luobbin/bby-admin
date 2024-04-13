@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react';
 
 import { IconButton, Iconify } from '@/components/icon';
 
-import { PageList, SearchReq, ItemReq, usePage } from '@/api/services/solutionTrialService';
-import { SolutionTrialModal, ItemModalProps } from './solutionTrial-modal.tsx';
+import { PageList, SearchReq, ItemReq, usePage } from '@/api/services/solutionTrailService';
+import { SolutionTrialModal, ItemModalProps } from './solutionTrial-modal';
 
 import { PageRes } from '#/entity';
 
 type SearchFormFieldType = keyof SearchReq;
 const PAGE_TITLE = '客户试用记录 列表';
-const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:3, };
+const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:10, };
 const DEFAULE_VAL: ItemReq = {
   id: '',
   companyId: 0,
@@ -38,18 +38,21 @@ export default function SolutionBusinessPage() {
   const columns: ColumnsType<PageList> = [
     {
       title: "试用客户",
-      dataIndex: "tUser.account",
-      width: 300
+      dataIndex: "tUser",
+      width: 300,
+      render: (tUser)=><div>{tUser.account}</div>
     },
     {
-      title: "对接公司",
-      dataIndex: "tCompany.name",
-      width: 300
+      title: "对接服务商",
+      dataIndex: "tCompany",
+      width: 300,
+      render: (tCompany)=><div>{tCompany.name}</div>
     },
     {
       title: "对接解决方案",
-      dataIndex: "tSolution.name",
-      width: 300
+      dataIndex: "tSolution",
+      width: 300,
+      render: (tSolution)=><div>{tSolution.name}</div>
     },
     { title: "创建时间", dataIndex: "createdAt", align: "center", width: 300 },
     {

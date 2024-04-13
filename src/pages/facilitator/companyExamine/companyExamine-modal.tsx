@@ -1,8 +1,10 @@
-import { Form, Modal, Input, Radio, Button, App } from 'antd';
-import { useEffect } from 'react';
+import { Form, Modal, Input, Radio, Button, App, Select } from 'antd';
+import { useEffect, useState } from 'react';
 
 import { ItemReq, useAdd, useUpdate } from '@/api/services/companyExamineService';
-import { IfCheckStatus, } from "#/enum";
+import { IfCheckStatus, IfDelStatus, IfServiceStatus, } from '#/enum';
+import { usePage as useMemberPage, SearchReq as SearchMember} from '@/api/services/memberService';
+import { UploadAvatar } from "@/components/upload";
 
 export type ItemModalProps = {
   formValue: ItemReq;
@@ -13,13 +15,62 @@ export type ItemModalProps = {
 };
 export function CompanyExamineModal({ title, show, formValue, onOk, onCancel }: ItemModalProps) {
   const [form] = Form.useForm();
-  // const [infoValue, setInfoValue] = useState('aaa');
-  // const [abilitySetValue, setAbilitySetValue] = useState('');
-  // const [contactSetValue, setContactSetValue] = useState('');
-  // const [qualificationSetValue, setQualificationSetValue] = useState('');
+  const [memberList, setMemberList] = useState([]);
+  const getMemberList = useMemberPage();
+  const [logo, setLogo] = useState('');
+  const [indexImg, setIndexImg] = useState('');
+
   useEffect(() => {
+    //加载类目
+    const handleList = async() => {
+      try {
+        // @ts-ignore
+        const memberReq: SearchMember = {
+          pageIndex: 1,
+          pageSize: 10,
+          ifDel: IfDelStatus.否,
+          ifService: IfServiceStatus.否,
+        };
+        await getMemberList(memberReq).then((res) => {
+          // @ts-ignore
+          const memberRes: PageRes = res;
+          if (memberRes && Reflect.has(memberRes, 'list')) {
+            // @ts-ignore
+            memberRes.list.push({ id: 0, account: '未选择', });
+            // @ts-ignore
+            setMemberList(memberRes.list);
+          }
+        });
+      }finally {
+        console.log('类目加载完成');
+      }
+
+    }
+    handleList();
+  }, []);
+
+  useEffect(() => {
+    //初始化表单
     form.setFieldsValue({ ...formValue });
-  }, [formValue, form]);
+    setLogo(form.getFieldValue('logo'));
+    setIndexImg(form.getFieldValue('indexImg'))
+  }, [formValue,form]);
+
+  function updateIndexImg(newImg: string): void {
+    if (newImg && newImg !== ''){
+      form.setFieldValue('indexImg',newImg);
+      setIndexImg(newImg);
+    }
+    console.log("获取到新头像indexImg：",form.getFieldValue('indexImg'));
+  }
+
+  function updateLogo(newImg: string): void {
+    if (newImg && newImg !== '') {
+      form.setFieldValue('logo', newImg);
+      setLogo(newImg);
+    }
+  }
+
   const add = useAdd();
   const update = useUpdate();
   const { notification } = App.useApp();
@@ -71,6 +122,16 @@ export function CompanyExamineModal({ title, show, formValue, onOk, onCancel }: 
         <Form.Item<ItemReq> label="ID" name="id" hidden>
           <Input />
         </Form.Item>
+        <Form.Item<ItemReq> label="申请用户" name="userId">
+          <Select
+            fieldNames={{
+              label: 'account',
+              value: 'id',
+            }}
+            style={{ width: 120 }}
+            options={memberList}
+          />
+        </Form.Item>
         <Form.Item<ItemReq> label="公司名称" name="name" required>
           <Input />
         </Form.Item>
@@ -81,10 +142,10 @@ export function CompanyExamineModal({ title, show, formValue, onOk, onCancel }: 
           <Input />
         </Form.Item>
         <Form.Item<ItemReq> label="公司LOGO" name="logo" required>
-          <Input />
+          <UploadAvatar helperText="" defaultAvatar={logo} onChange={updateLogo}/>
         </Form.Item>
         <Form.Item<ItemReq> label="公司展示图片" name="indexImg" required>
-          <Input />
+          <UploadAvatar helperText="" defaultAvatar={indexImg} onChange={updateIndexImg}/>
         </Form.Item>
         <Form.Item<ItemReq> label="介绍" name="info">
           <Input.TextArea />
@@ -98,35 +159,7 @@ export function CompanyExamineModal({ title, show, formValue, onOk, onCancel }: 
         <Form.Item<ItemReq> label="在线咨询" name="contactSet">
           <Input.TextArea />
         </Form.Item>
-        {/* <Form.Item<ItemReq> label="介绍" name="info">
-          <Card title="Editor Simple">
-            <Editor id="info-editor" sample value={infoValue} onChange={setInfoValue} />
-          </Card>
-        </Form.Item>
-       <Form.Item<ItemReq> label="资质认证" name="qualificationSet" required>
-          <Editor
-            id="qualificationSet-editor"
-            sample
-            value={qualificationSetValue}
-            onChange={setQualificationSetValue}
-          />
-        </Form.Item>
-        <Form.Item<ItemReq> label="能力" name="abilitySet" required>
-          <Editor
-            id="abilitySet-editor"
-            sample
-            value={abilitySetValue}
-            onChange={setAbilitySetValue}
-          />
-        </Form.Item>
-        <Form.Item<ItemReq> label="在线咨询" name="contactSet" required>
-          <Editor
-            id="contactSet-editor"
-            sample
-            value={contactSetValue}
-            onChange={setContactSetValue}
-          />
-        </Form.Item> */}
+
         <Form.Item<ItemReq> label="审核" name="ifCheck" required>
           <Radio.Group optionType="button" buttonStyle="solid">
             <Radio value={IfCheckStatus.待定}> 待定 </Radio>
@@ -134,7 +167,7 @@ export function CompanyExamineModal({ title, show, formValue, onOk, onCancel }: 
             <Radio value={IfCheckStatus.驳回}> 驳回 </Radio>
           </Radio.Group>
         </Form.Item>
-        <Form.Item<ItemReq> label="驳回原因" name="reason" required>
+        <Form.Item<ItemReq> label="驳回原因" name="reason">
           <Input />
         </Form.Item>
       </Form>

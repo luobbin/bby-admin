@@ -40,7 +40,7 @@ export type ItemReq = SolutionTrial;
 export type NewItem = Omit<ItemReq, 'id'>;
 
 export enum BaseApi {
-  Uri = '/v1/l-solution-trial',
+  Uri = '/v1/l-solution-trail',
 }
 
 const itemList = (params: SearchReq) =>
