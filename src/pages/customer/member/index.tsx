@@ -23,7 +23,7 @@ const DEFAULE_VAL: ItemReq = {
   mobile: '',
   realName: '',
   address: '',
-  ifDel: IfDelStatus.NO,
+  ifDel: IfDelStatus.否,
   ifService: 0,
 };
 
@@ -79,7 +79,7 @@ export default function MemberPage() {
       align: 'center',
       width: 120,
       render: (ifDel) => (
-        <ProTag color={ifDel === IfDelStatus.YES ? 'success' : 'error'}>
+        <ProTag color={ifDel === IfDelStatus.是 ? 'success' : 'error'}>
           {IfDelStatus[ifDel]}
         </ProTag>
       ),

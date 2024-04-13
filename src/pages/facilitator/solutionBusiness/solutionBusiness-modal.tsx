@@ -2,7 +2,10 @@ import { Form, Modal, Input, Radio, Button, Select } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { ItemReq, useAdd, useUpdate } from "@/api/services/solutionBusinessService";
-import { BusinessStatus} from "#/enum";
+import { usePage as useMemberPage, SearchReq as SearchMember} from '@/api/services/memberService';
+import { usePage as useSolutionPage, SearchReq as SearchSolution} from '@/api/services/solutionService';
+import { BusinessStatus, IfDelStatus } from '#/enum';
+import { PageRes } from '#/entity';
 
 export type ItemModalProps = {
   formValue: ItemReq;
@@ -13,13 +16,56 @@ export type ItemModalProps = {
 };
 export function SolutionBusinessModal({ title, show, formValue, onOk, onCancel }: ItemModalProps) {
   const [form] = Form.useForm();
-  const [userList, setUserList] = useState([]);
+  const [memberList, setMemberList] = useState([]);
+  const getMemberList = useMemberPage();
   const [solutionList, setSolutionList] = useState([]);
+  const getSolutionList = useSolutionPage();
   useEffect(() => {
+    //初始化表单
     form.setFieldsValue({ ...formValue });
-    setUserList([]);
-    setSolutionList([]);
+    //加载类目
+    const handleList = async () => {
+      try {
+        // @ts-ignore
+        const memberReq: SearchMember = {
+          pageIndex: 1,
+          pageSize: 10,
+          ifDel: IfDelStatus.否,
+        };
+        await getMemberList(memberReq).then((res) => {
+          // @ts-ignore
+          const memberRes: PageRes = res;
+          if (memberRes && Reflect.has(memberRes, 'list')) {
+            // @ts-ignore
+            memberRes.list.push({ id: 0, account: '未选择',});
+            // @ts-ignore
+            setMemberList(memberRes.list);
+          }
+        });
+
+        // @ts-ignore
+        const solutionReq: SearchSolution = {
+          pageIndex: 1,
+          pageSize: 10,
+        };
+        await getSolutionList(solutionReq).then((res) => {
+          // @ts-ignore
+          const solutionRes: PageRes = res;
+          if (solutionRes && Reflect.has(solutionRes, 'list')) {
+            // @ts-ignore
+            solutionRes.list.push({ id: 0, name: '未选择', });
+            // @ts-ignore
+            setSolutionList(solutionRes.list);
+          }
+        });
+      } finally {
+        console.log('类目加载完成');
+      }
+    };
+    handleList();
   }, [formValue, form]);
+
+
   const add = useAdd();
   const update = useUpdate();
   const handleFinish = async () => {
@@ -70,18 +116,16 @@ export function SolutionBusinessModal({ title, show, formValue, onOk, onCancel }
         </Form.Item>
         <Form.Item<ItemReq> label="客户" name="userId">
           <Select
-            // defaultValue={pid}
             fieldNames={{
               label: 'account',
               value: 'id',
             }}
             style={{ width: 120 }}
-            options={userList}
+            options={memberList}
           />
         </Form.Item>
         <Form.Item<ItemReq> label="解决方案" name="solutionId">
           <Select
-            // defaultValue={pid}
             fieldNames={{
               label: 'name',
               value: 'id',

@@ -118,8 +118,8 @@ export function SolutionModal({ title, show, formValue, onOk, onCancel }: ItemMo
         </Form.Item>
         <Form.Item<ItemReq> label="是否热门" name="ifHot" required>
           <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfHotStatus.ENABLE}> 是 </Radio>
-            <Radio value={IfHotStatus.DISABLE}> 否 </Radio>
+            <Radio value={IfHotStatus.是}> 是 </Radio>
+            <Radio value={IfHotStatus.否}> 否 </Radio>
           </Radio.Group>
         </Form.Item>
         <Form.Item<ItemReq> label="排序" name="sort" required>

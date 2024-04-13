@@ -1,7 +1,7 @@
 import apiClient from '../apiClient';
 import { useMutation } from '@tanstack/react-query';
 
-import { Industry, PageRes, Support } from '#/entity';
+import { Industry, PageRes, Region, Support } from "#/entity";
 import { App } from 'antd';
 import { useCallback } from 'react';
 // eslint-disable-next-line import/extensions
@@ -44,7 +44,7 @@ export interface CompanyReq extends Company {
 export interface PageList extends CompanyReq {
   tSupport?: Support[];
   tIndustry: Industry[];
-  tRegion: Industry[];
+  tRegion: Region[];
   tUser: Member;
   createdAt: string;
   updatedAt: string;

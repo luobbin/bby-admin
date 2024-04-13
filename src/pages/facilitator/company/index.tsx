@@ -15,7 +15,7 @@ import { IfShowStatus, IfHotStatus} from '#/enum';
 type SearchFormFieldType = keyof SearchReq;
 const PAGE_TITLE = '服务商 列表';
 const IFSHOW_TAG: Array<string> = ['待定', '显示', '禁用',];
-const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:3, };
+const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:10, };
 
 export default function CompanyPage() {
   const [searchForm] = Form.useForm();
@@ -27,10 +27,16 @@ export default function CompanyPage() {
       width: 300
     },
     {
+      title: "用户",
+      dataIndex: "tUser",
+      width: 100,
+      render: (tUser)=><div>{tUser.account}</div>
+    },
+    {
       title: "状态",
       dataIndex: "ifShow",
       align: "center",
-      width: 120,
+      width: 80,
       render: (ifShow) => (
         <ProTag color={ifShow === IfShowStatus.ENABLE ? "success" : "error"}>{IFSHOW_TAG[ifShow]}</ProTag>
       )
@@ -39,15 +45,15 @@ export default function CompanyPage() {
       title: "热门",
       dataIndex: "ifHot",
       align: "center",
-      width: 120,
+      width: 80,
       render: (ifHot) => (
-        <ProTag color={ifHot === IfHotStatus.ENABLE ? "success" : "error"}>{IfHotStatus[ifHot]}</ProTag>
+        <ProTag color={ifHot === IfHotStatus.是 ? "success" : "error"}>{IfHotStatus[ifHot]}</ProTag>
       )
     },
-    { title: "电话", dataIndex: "mobile", align: "center", width: 300 },
+    { title: "电话", dataIndex: "mobile", align: "center", width: 200 },
     { title: "地址", dataIndex: "address", align: "center", width: 400 },
-    { title: "创建时间", dataIndex: "createdAt", align: "center", width: 300 },
-    { title: "更新时间", dataIndex: "updatedAt", align: "center", width: 300 },
+    { title: "创建时间", dataIndex: "createdAt", align: "center", width: 200 },
+    { title: "更新时间", dataIndex: "updatedAt", align: "center", width: 200 },
     {
       title: "操作",
       key: "operation",
@@ -144,14 +150,12 @@ export default function CompanyPage() {
     }
   };
   // 切换分页
-  const onChangePage = async (paging:any, filters:any, sort:any) => {
+  const onChangePage = async (paging:any, _filters:any, _sort:any) => {
     setLoading(true);
     try {
       searchForm.setFieldValue('pageIndex', paging.current);
       searchForm.setFieldValue('pageSize', paging.pageSize);
-      console.log('分页请求参数', searchForm.getFieldsValue(), filters,sort);
       const res = await getPage(searchForm.getFieldsValue());
-      console.log('分页到数据', res);
       // @ts-ignore
       const pageRes : PageRes = res;
       if (pageRes && Reflect.has(pageRes, "list")) {
@@ -164,14 +168,11 @@ export default function CompanyPage() {
             total: pageRes.count, // 总数据量
           },
         });
-        console.log("获取到数据3", data);
       }
     } finally {
       setLoading(false);
     }
   };
-
-
 
   return (
     <Space direction="vertical" size="large" className="w-full">

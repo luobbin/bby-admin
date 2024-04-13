@@ -1,12 +1,13 @@
 import apiClient from '../apiClient';
 import { useMutation } from '@tanstack/react-query';
 
-import { Industry, PageRes, Support } from '#/entity';
+import { Industry, PageRes, Region } from "#/entity";
 import { App } from 'antd';
 import { useCallback } from 'react';
 // eslint-disable-next-line import/extensions
 import { Result } from '#/api.ts';
 import { Member } from '@/api/services/memberService';
+import { Solution } from "@/api/services/solutionService.ts";
 
 export interface SearchReq {
   pageIndex: number;
@@ -40,10 +41,10 @@ export interface Demand {
 
 
 export interface PageList extends Demand {
-  tSupport?: Support[];
-  tIndustry: Industry[];
-  tRegion: Industry[];
   tUser: Member;
+  tRegion: Region;
+  tIndustry: Industry;
+  tSolution: Solution;
   createdAt: string;
   updatedAt: string;
 }

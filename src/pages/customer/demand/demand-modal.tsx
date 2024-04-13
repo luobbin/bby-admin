@@ -34,7 +34,7 @@ export function DemandModal({ title, show, formValue, onOk, onCancel }: ItemModa
         const memberReq: SearchMember = {
           pageIndex: 1,
           pageSize: 10,
-          ifDel: IfDelStatus.NO,
+          ifDel: IfDelStatus.否,
         };
         await getMemberList(memberReq).then((res) => {
           // console.log('获取用户数据', res);
@@ -248,8 +248,8 @@ export function DemandModal({ title, show, formValue, onOk, onCancel }: ItemModa
         </Form.Item>
         <Form.Item<ItemReq> label="是否删除" name="ifDel" required>
           <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfDelStatus.NO}> 否 </Radio>
-            <Radio value={IfDelStatus.YES}> 是 </Radio>
+            <Radio value={IfDelStatus.否}> 否 </Radio>
+            <Radio value={IfDelStatus.是}> 是 </Radio>
           </Radio.Group>
         </Form.Item>
         <Form.Item<ItemReq> label="排序" name="sort" required>

@@ -1,7 +1,7 @@
 import { Typography, Upload, message } from 'antd';
 import { UploadChangeParam, UploadFile, UploadProps, RcFile } from 'antd/es/upload';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { fBytes } from '@/utils/format-number';
 
@@ -20,7 +20,7 @@ interface Props extends UploadProps {
 const DEFAULT_IMG = import.meta.env.VITE_DEFAULT_IMG as string;
 export function UploadAvatar({ helperText, defaultAvatar = '', ...other }: Props) {
   defaultAvatar = defaultAvatar==''?DEFAULT_IMG:defaultAvatar
-  console.log("获取到图片：",defaultAvatar);
+  // console.log("获取到图片：",defaultAvatar);
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>(defaultAvatar);
   const [imageBase64, setImageBase64] = useState<string>('');
@@ -28,6 +28,11 @@ export function UploadAvatar({ helperText, defaultAvatar = '', ...other }: Props
   const handelHover = (hover: boolean) => {
     setIsHover(hover);
   };
+
+  //重新加载显示图
+  useEffect(() => {
+    setImageUrl(defaultAvatar);
+  }, [defaultAvatar]);
 
   const beforeUpload = (file: RcFile) => {
     const ifUpload = beforeAvatarUpload(file);

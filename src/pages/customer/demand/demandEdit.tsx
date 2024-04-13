@@ -7,8 +7,8 @@ import dayjs from 'dayjs';
 import { IfDelStatus, IfVisitStatus, SourceStatus } from '#/enum';
 import { ItemReq, useAdd, useUpdate } from '@/api/services/demandService';
 import { useList as useRegionPage, SearchReq as SearchRegion, } from '@/api/services/regionService';
-import { usePage as useMemberPage, SearchReq as SearchMember} from '@/api/services/memberService';
 import { useList as useIndustryPage, SearchReq as SearchIndustry} from '@/api/services/industryService';
+import { usePage as useMemberPage, SearchReq as SearchMember} from '@/api/services/memberService';
 import { usePage as useSolutionPage, SearchReq as SearchSolution} from '@/api/services/solutionService';
 import { Industry, PageRes, Region } from '#/entity';
 import Editor from '@/components/editor';
@@ -31,7 +31,7 @@ const DEFAULE_VAL: ItemReq = {
   content: '',
   qualification: '',
   others:'',
-  ifDel: IfDelStatus.NO,
+  ifDel: IfDelStatus.否,
   sort: 0,
   ifVisit: IfVisitStatus.否,
 };
@@ -40,21 +40,21 @@ export default function DemandEditPage() {
   const [form] = Form.useForm();
   // 查询所有分类: 用户，地区，行业，解决方案
   const [memberList, setMemberList] = useState([]);
-  const [regionList, setRegionList] = useState([]);
-  const [industryList, setIndustryList] = useState([]);
-  const [solutionList, setSolutionList] = useState([]);
   const getMemberList = useMemberPage();
+  const [regionList, setRegionList] = useState([]);
   const getRegionList = useRegionPage();
+  const [industryList, setIndustryList] = useState([]);
   const getIndustryList = useIndustryPage();
+  const [solutionList, setSolutionList] = useState([]);
   const getSolutionList = useSolutionPage();
   useEffect(() => {
-    const handleMember = async () => {
+    const handleList = async () => {
       try {
         // @ts-ignore
         const memberReq: SearchMember = {
           pageIndex: 1,
           pageSize: 10,
-          ifDel: IfDelStatus.NO,
+          ifDel: IfDelStatus.否,
         };
         await getMemberList(memberReq).then((res) => {
           // console.log('获取用户数据', res);
@@ -125,7 +125,7 @@ export default function DemandEditPage() {
         console.log('加载完成');
       }
     };
-    handleMember();
+    handleList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [formValue, setFormValue] = useState<ItemReq>();
@@ -294,8 +294,8 @@ export default function DemandEditPage() {
         </Form.Item>
         <Form.Item<ItemReq> label="是否删除" name="ifDel" required>
           <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfDelStatus.NO}> 否 </Radio>
-            <Radio value={IfDelStatus.YES}> 是 </Radio>
+            <Radio value={IfDelStatus.否}> 否 </Radio>
+            <Radio value={IfDelStatus.是}> 是 </Radio>
           </Radio.Group>
         </Form.Item>
         <Form.Item<ItemReq> label="排序" name="sort">

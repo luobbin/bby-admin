@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 // eslint-disable-next-line import/extensions
 import { Result } from '#/api.ts';
 import { Company } from '@/api/services/companyService';
+import { Solution } from "@/api/services/solutionService.ts";
 
 export interface SearchReq {
   pageIndex: number;
@@ -20,11 +21,12 @@ export interface SearchReq {
 export interface Case {
   id: string;
   name: string;
-  companyId: number;
   customerName: string;
   info: string;
+  companyId: number;
   regionId: number;
   industryId: number;
+  solutionId: number;
   dealAmount: number;
   beginTime: string;
   endTime: string;
@@ -36,9 +38,10 @@ export interface Case {
 }
 
 export interface PageList extends Case {
-  region: Region;
-  industry: Industry;
-  company: Company;
+  tRegion: Region;
+  tIndustry: Industry;
+  tCompany: Company;
+  tSolution?: Solution;
   createdAt: string;
   updatedAt: string;
 }

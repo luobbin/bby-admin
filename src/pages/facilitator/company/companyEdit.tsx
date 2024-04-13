@@ -1,11 +1,18 @@
-import { Form, Space, Input, Radio, Tooltip, Button, App, InputNumber } from 'antd';
+import { Form, Space, Input, Radio, Tooltip, Button, App, InputNumber, Select, TreeSelect } from 'antd';
 import { useEffect, useState } from 'react';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 
 import { ItemReq, useAdd, useUpdate } from '@/api/services/companyService';
-import { IfHotStatus, IfShowStatus } from '#/enum';
+import { IfDelStatus, IfHotStatus, IfServiceStatus, IfShowStatus } from "#/enum";
 import Editor from '@/components/editor';
-import { UploadAvatar } from "@/components/upload";
+import { UploadAvatar } from '@/components/upload';
+import { PageRes } from "#/entity.ts";
+
+import { usePage as useMemberPage, SearchReq as SearchMember} from '@/api/services/memberService';
+import { useList as useRegionPage, SearchReq as SearchRegion, } from '@/api/services/regionService';
+import { useList as useIndustryPage, SearchReq as SearchIndustry} from '@/api/services/industryService';
+import { useList as useSupportPage, SearchReq as SearchSupport} from '@/api/services/supportService';
 
 const DEFAULE_VAL: ItemReq = {
   id: '',
@@ -29,45 +36,161 @@ const DEFAULE_VAL: ItemReq = {
 
 export default function CompanyEditPage() {
   const [form] = Form.useForm();
-  // 初始化数据
+
+  //首次加载：类目+初始化
   const currentLocation = useLocation();
-  const [formValue, setFormValue] = useState<ItemReq>();
-  const [loading, setLoading] = useState(false);
   const [submitTitle, setSubmitTitle] = useState('');
   const [contactSet, setContactSet] = useState('');
+  const [logo, setLogo] = useState('');
+  const [indexImg, setIndexImg] = useState('');
+  const [memberList, setMemberList] = useState([]);
+  const getMemberList = useMemberPage();
+  const [regionList, setRegionList] = useState([]);
+  const getRegionList = useRegionPage();
+  const [industryList, setIndustryList] = useState([]);
+  const getIndustryList = useIndustryPage();
+  const [supportList, setSupportList] = useState([]);
+  const getSupportList = useSupportPage();
   useEffect(() => {
+    //初始化参数
     if (currentLocation.state){
       const { title, params } = currentLocation.state;
-      setFormValue(title === '创建'? DEFAULE_VAL : params);
+      form.setFieldsValue(title === '创建'? DEFAULE_VAL : params);
       setSubmitTitle(title);
+      console.log("初始化数据", form.getFieldsValue());
+      setContactSet(form.getFieldValue('contactSet'));
+      setLogo(form.getFieldValue('logo'));
+      setIndexImg(form.getFieldValue('indexImg'))
+      if (form.getFieldValue('abilitySet') !== ''){
+        form.setFieldValue('abilityList', JSON.parse(form.getFieldValue('abilitySet')));
+      }
     }
-    console.log("初始化数据", formValue);
-    if (formValue){
-      console.log('formValue',formValue);
-      form.setFieldsValue(formValue);
-    }
-  }, [formValue, form]);
+    //加载类目
+    const handleList = async() => {
+      try {
+        // @ts-ignore
+        const memberReq: SearchMember = {
+          pageIndex: 1,
+          pageSize: 10,
+          ifDel: IfDelStatus.否,
+          ifService: IfServiceStatus.否,
+        };
+        await getMemberList(memberReq).then((res) => {
+          // @ts-ignore
+          const memberRes: PageRes = res;
+          if (memberRes && Reflect.has(memberRes, 'list')) {
+            // @ts-ignore
+            memberRes.list.push({ id: 0, account: '未选择', });
+            // @ts-ignore
+            setMemberList(memberRes.list);
+          }
+        });
+        // @ts-ignore
+        const industryReq: SearchIndustry = {
+          pageIndex: 1,
+          pageSize: 10,
+        };
+        await getIndustryList(industryReq).then((res) => {
+          // console.log('获取行业数据', res);
+          // @ts-ignore
+          const industryRes: Industry[] = res;
+          if (industryRes) {
+            // @ts-ignore
+            industryRes.push({ id: 0, name: '未选择',});
+            console.log('获取行业列表', industryRes);
+            // @ts-ignore
+            setIndustryList(industryRes);
+          }
+        });
+        // @ts-ignore
+        const regionReq: SearchRegion = {
+          pageIndex: 1,
+          pageSize: 10,
+        };
+        await getRegionList(regionReq).then((res) => {
+          // console.log('获取行业、、地区数据', res);
+          // @ts-ignore
+          const regionRes: Region[] = res;
+          if (regionRes) {
+            // @ts-ignore
+            regionRes.push({ id: 0, name: '未选择',});
+            console.log('获取地区列表', regionRes);
+            // @ts-ignore
+            setRegionList(regionRes);
+          }
+        });
+        // @ts-ignore
+        const supportReq: SearchSupport = {
+          pageIndex: 1,
+          pageSize: 10,
+        };
+        await getSupportList(supportReq).then((supportRes) => {
+          if (supportRes) {
+            // @ts-ignore
+            supportRes.push({ id: 0, name: '未选择',});
+            console.log('获取服务列表', supportRes);
+            // @ts-ignore
+            setSupportList(supportRes);
+          }
+        });
 
-  function setIndexImg(newImg: string): void {
-    console.log("获取到新头像：",newImg);
-    form.setFieldValue('indexImg',newImg);
+      }finally {
+        console.log('类目加载完成');
+      }
+
+    }
+    handleList();
+
+  }, []);
+
+  function updateIndexImg(newImg: string): void {
+    if (newImg && newImg !== ''){
+      form.setFieldValue('indexImg',newImg);
+      setIndexImg(newImg);
+    }
+    console.log("获取到新头像indexImg：",form.getFieldValue('indexImg'));
   }
 
-  function setLogo(newImg: string): void {
-    console.log("获取到新头像：",newImg);
-    form.setFieldValue('logo',newImg);
+  function updateLogo(newImg: string): void {
+    if (newImg && newImg !== '') {
+      form.setFieldValue('logo', newImg);
+      setLogo(newImg);
+    }
   }
+
+  const renderUserSelect = submitTitle==='创建'?
+    <Select
+      fieldNames={{
+        label: 'account',
+        value: 'id',
+      }}
+      style={{ width: 120 }}
+      options={memberList}
+    />
+  :
+    <Select
+      fieldNames={{
+        label: 'account',
+        value: 'id',
+      }}
+      style={{ width: 120 }}
+      options={memberList}
+      disabled
+    />;
 
   //更新|新增
   const add = useAdd();
   const update = useUpdate();
   const { notification } = App.useApp();
+  const [loading, setLoading] = useState(false);
   const handleFinish = async () => {
     setLoading(true);
     // @ts-ignore
     const item: ItemReq = form.getFieldsValue();
+    item.abilitySet = JSON.stringify(form.getFieldValue('abilityList'));
+    setLoading(false);
+    console.log('转换数据为', item);
     try {
-      console.log('转换数据为', item);
       let res;
       if (form.getFieldValue("id") === "") {
         res = await add(item);
@@ -78,6 +201,7 @@ export default function CompanyEditPage() {
       }
       if (res){
         form.setFieldsValue(DEFAULE_VAL);
+        console.log("获取到新表单值：",form.getFieldsValue());
       }
     } finally {
       notification.success({
@@ -91,7 +215,7 @@ export default function CompanyEditPage() {
   return (
     <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
       <Form
-        initialValues={formValue}
+        initialValues={form}
         form={form}
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 18 }}
@@ -104,17 +228,71 @@ export default function CompanyEditPage() {
         <Form.Item<ItemReq> label="公司名称" name="name" required>
           <Input />
         </Form.Item>
+        <Form.Item<ItemReq> label="公司LOGO" name="logo" required>
+          <UploadAvatar helperText="" defaultAvatar={logo} onChange={updateLogo}/>
+        </Form.Item>
+        <Form.Item<ItemReq> label="场景展示图片" name="indexImg" required>
+          <UploadAvatar helperText="" defaultAvatar={indexImg} onChange={updateIndexImg}/>
+        </Form.Item>
+        <Form.Item<ItemReq> label="所属用户" name="userId" required >
+          {renderUserSelect}
+        </Form.Item>
+        <Form.Item<ItemReq> label="所属行业" name="industryIds" required>
+          <TreeSelect
+            multiple
+            showSearch
+            allowClear
+            treeDefaultExpandAll
+            style={{ width: '100%' }}
+            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+            placeholder="请选择"
+            fieldNames={{
+              label: 'name',
+              value: 'id',
+              children: 'children',
+            }}
+            treeData={industryList}
+          />
+        </Form.Item>
+        <Form.Item<ItemReq> label="所属地区" name="regionIds" required>
+          <TreeSelect
+            multiple
+            showSearch
+            allowClear
+            treeDefaultExpandAll
+            style={{ width: '100%' }}
+            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+            placeholder="请选择"
+            fieldNames={{
+              label: 'name',
+              value: 'id',
+              children: 'children',
+            }}
+            treeData={regionList}
+          />
+        </Form.Item>
+        <Form.Item<ItemReq> label="支持服务" name="supportIds">
+          <TreeSelect
+            multiple
+            showSearch
+            allowClear
+            treeDefaultExpandAll
+            style={{ width: '100%' }}
+            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+            placeholder="请选择"
+            fieldNames={{
+              label: 'name',
+              value: 'id',
+              children: 'children',
+            }}
+            treeData={supportList}
+          />
+        </Form.Item>
         <Form.Item<ItemReq> label="公司电话" name="mobile" required>
           <Input />
         </Form.Item>
-        <Form.Item<ItemReq> label="公司地址" name="address" required>
+        <Form.Item<ItemReq> label="公司地址" name="address">
           <Input />
-        </Form.Item>
-        <Form.Item<ItemReq> label="公司LOGO" name="logo" required>
-          <UploadAvatar helperText="" defaultAvatar={form.getFieldValue('logo')} onChange={setLogo}/>
-        </Form.Item>
-        <Form.Item<ItemReq> label="公司展示图片" name="indexImg" required>
-          <UploadAvatar helperText="" defaultAvatar={form.getFieldValue('indexImg')} onChange={setIndexImg}/>
         </Form.Item>
         <Form.Item<ItemReq> label="介绍" name="info">
           <Input.TextArea />
@@ -122,11 +300,66 @@ export default function CompanyEditPage() {
         <Form.Item<ItemReq> label="资质认证" name="qualificationSet">
           <Input.TextArea placeholder="待处理。文件上传" />
         </Form.Item>
-        <Form.Item<ItemReq> label="能力" name="abilitySet">
-          <Input.TextArea placeholder="待处理：先用逗号分隔" />
+        <Form.Item label={'能力列表'}>
+          <Form.List
+            name="abilityList"
+            rules={[
+               {
+                 validator: async (_, names) => {
+                   if (!names || names.length < 1) {
+                     return Promise.reject(new Error('至少要输入一个能力'));
+                   }
+                 },
+               },
+            ]}
+          >
+            {(fields, { add, remove }, { errors }) => (
+              <>
+                {fields.map((field, _index) => (
+                  <Form.Item
+                    required={false}
+                    key={field.key}
+                  >
+                    <Form.Item
+                      {...field}
+                      validateTrigger={['onChange', 'onBlur']}
+                      rules={[
+                        {
+                          required: true,
+                          whitespace: true,
+                          message: "请输入或者删除此栏目.",
+                        },
+                      ]}
+                      noStyle
+                    >
+                      <Input placeholder="请输入" style={{ width: '90%' }} />
+                    </Form.Item>
+                    {fields.length > 1 ? (
+                      <MinusCircleOutlined
+                        className="dynamic-delete-button"
+                        onClick={() => remove(field.name)}
+                      />
+                    ) : null}
+                  </Form.Item>
+                ))}
+                <Form.Item>
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    style={{ width: '60%' }}
+                    icon={<PlusOutlined />}
+                  >
+                    添加能力
+                  </Button>
+                  <Form.ErrorList errors={errors} />
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
         </Form.Item>
+
         <Form.Item<ItemReq> label="在线咨询" name="contactSet">
-          <Editor id="article-content-editor" value={contactSet} onChange={setContactSet} />
+          <Editor id="article-contactSet-editor" value={contactSet} onChange={setContactSet} />
         </Form.Item>
         <Form.Item<ItemReq> label="显示状态" name="ifShow" required>
           <Radio.Group optionType="button" buttonStyle="solid">
@@ -141,11 +374,11 @@ export default function CompanyEditPage() {
         </Form.Item>
         <Form.Item<ItemReq> label="是否热门" name="ifHot" required>
           <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfHotStatus.ENABLE}> 是 </Radio>
-            <Radio value={IfHotStatus.DISABLE}> 否 </Radio>
+            <Radio value={IfHotStatus.是}> 是 </Radio>
+            <Radio value={IfHotStatus.否}> 否 </Radio>
           </Radio.Group>
         </Form.Item>
-        <Form.Item<ItemReq> label="排序" name="sort" required>
+        <Form.Item<ItemReq> label="排序" name="sort">
           <InputNumber style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item wrapperCol={{ span: 12, offset: 6 }}>

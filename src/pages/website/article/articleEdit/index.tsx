@@ -9,7 +9,7 @@ import { IfDelStatus } from '#/enum.ts';
 const DEFAULE_VAL: ItemReq = {
   id: "",
   title: "",
-  ifDel: IfDelStatus.NO,
+  ifDel: IfDelStatus.否,
   info: "",
   content: ""
 };
@@ -87,8 +87,8 @@ export default function ArticleEditPage()  {
         </Form.Item>
         <Form.Item<ItemReq> label="是否删除" name="ifDel" required>
           <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfDelStatus.NO}> 否 </Radio>
-            <Radio value={IfDelStatus.YES}> 是 </Radio>
+            <Radio value={IfDelStatus.否}> 否 </Radio>
+            <Radio value={IfDelStatus.是}> 是 </Radio>
           </Radio.Group>
         </Form.Item>
         <Form.Item wrapperCol={{ span: 12, offset: 6 }}>

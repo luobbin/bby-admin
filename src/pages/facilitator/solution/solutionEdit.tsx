@@ -1,4 +1,4 @@
-import { Form, Space, Input, Radio, Tooltip, Button, Select, InputNumber, App } from 'antd';
+import { Form, Space, Input, Radio, Tooltip, Button, Select, InputNumber, App, TreeSelect } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -16,7 +16,6 @@ import { Industry, Scene, PageRes } from '#/entity';
 import Editor from '@/components/editor';
 import { UploadAvatar } from '@/components/upload';
 
-
 const DEFAULE_VAL: ItemReq = {
   id: '',
   name: '',
@@ -32,7 +31,7 @@ const DEFAULE_VAL: ItemReq = {
   advantage: '',
   functionSet: '',
   sort: 0,
-  ifHot: IfHotStatus.DISABLE,
+  ifHot: IfHotStatus.否,
   indexImg: "",
   sceneIds: [],
   industryIds: [],
@@ -40,6 +39,13 @@ const DEFAULE_VAL: ItemReq = {
 
 export default function SolutionEditPage() {
   const [form] = Form.useForm();
+  //初始化
+  const currentLocation = useLocation();
+  const [submitTitle, setSubmitTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [advantage, setAdvantage] = useState('');
+  const [functionSet, setFunctionSet] = useState('');
+  const [indexImg, setIndexImg] = useState('');
   const [companyList, setCompanyList] = useState([]);
   const getCompanyList = useCompanyPage();
   const [industryList, setIndustryList] = useState([]);
@@ -47,6 +53,18 @@ export default function SolutionEditPage() {
   const [sceneList, setSceneList] = useState([]);
   const getSceneList = useScenePage();
   useEffect(() => {
+    //初始化参数
+    if (currentLocation.state){
+      const { title, params } = currentLocation.state;
+      form.setFieldsValue(title === '创建'? DEFAULE_VAL : params);
+      setSubmitTitle(title);
+      console.log("初始化数据", form.getFieldsValue());
+      setAdvantage(form.getFieldValue('advantage'));
+      setContent(form.getFieldValue('content'));
+      setFunctionSet(form.getFieldValue('functionSet'));
+      setIndexImg(form.getFieldValue('indexImg'));
+    }
+    //加载类目
     const handleList = async () => {
       try {
         // @ts-ignore
@@ -60,7 +78,7 @@ export default function SolutionEditPage() {
           if (companyRes && Reflect.has(companyRes, 'list')) {
             // @ts-ignore
             companyRes.list.push({ id: 0, name: '未选择',});
-            console.log('获取公司列表', companyRes.list);
+            // console.log('获取公司列表', companyRes.list);
             // @ts-ignore
             setCompanyList(companyRes.list);
           }
@@ -76,7 +94,7 @@ export default function SolutionEditPage() {
           if (industryRes) {
             // @ts-ignore
             industryRes.push({ id: 0, name: '未选择',});
-            console.log('获取行业列表', industryRes);
+            // console.log('获取行业列表', industryRes);
             // @ts-ignore
             setIndustryList(industryRes);
           }
@@ -92,55 +110,36 @@ export default function SolutionEditPage() {
           if (sceneRes) {
             // @ts-ignore
             sceneRes.push({ id: 0, name: '未选择',});
-            console.log('获取场景列表', sceneRes);
+            // console.log('获取场景列表', sceneRes);
             // @ts-ignore
             setSceneList(sceneRes);
           }
         });
       } finally {
-        console.log('加载完成');
+        console.log('类目加载完成');
       }
     };
     handleList();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const currentLocation = useLocation();
-  const [formValue, setFormValue] = useState<ItemReq>();
-  const [loading, setLoading] = useState(false);
-  const [submitTitle, setSubmitTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [advantage, setAdvantage] = useState('');
-  const [functionSet, setFunctionSet] = useState('');
-  useEffect(() => {
-    if (currentLocation.state){
-      const { title, params } = currentLocation.state;
-      setFormValue(title === '创建'? DEFAULE_VAL : params);
-      setSubmitTitle(title);
+  function updateIndexImg(newImg: string): void {
+    if (newImg && newImg !== ''){
+      form.setFieldValue('indexImg',newImg);
+      setIndexImg(newImg);
     }
-    console.log("初始化数据", formValue);
-    if (formValue){
-      console.log('formValue',formValue);
-      form.setFieldsValue(formValue);
-    }
-  }, [formValue, form]);
-
-  function setIndexImg(newImg: string): void {
-    console.log("获取到新头像：",newImg);
-    form.setFieldValue('indexImg',newImg);
   }
 
   const add = useAdd();
   const update = useUpdate();
   const { notification } = App.useApp();
+  const [loading, setLoading] = useState(false);
   const handleFinish = async () => {
     setLoading(true);
     console.log("提交表单",form.getFieldsValue())
     const item: ItemReq = form.getFieldsValue();
-    // @ts-ignore
-    item.sceneIds = [item.sceneIds];
-    // @ts-ignore
-    item.industryIds = [item.industryIds];
+    // return;
     try {
       console.log('转换数据为', item);
       let res;
@@ -166,7 +165,7 @@ export default function SolutionEditPage() {
   return (
     <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
       <Form
-        initialValues={formValue}
+        initialValues={form}
         form={form}
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 18 }}
@@ -179,6 +178,12 @@ export default function SolutionEditPage() {
         <Form.Item<ItemReq> label="名称" name="name" required>
           <Input />
         </Form.Item>
+        <Form.Item<ItemReq> label="首图" name="indexImg">
+          <UploadAvatar helperText="" defaultAvatar={indexImg} onChange={updateIndexImg}/>
+        </Form.Item>
+        <Form.Item<ItemReq> label="方案简介" name="info" required>
+          <Input.TextArea />
+        </Form.Item>
         <Form.Item<ItemReq> label="所属公司" name="companyId">
           <Select
             fieldNames={{
@@ -190,28 +195,49 @@ export default function SolutionEditPage() {
           />
         </Form.Item>
         <Form.Item<ItemReq> label="所属行业" name="industryIds">
-          <Select
+          <TreeSelect
+            multiple
+            showSearch
+            allowClear
+            treeDefaultExpandAll
+            style={{ width: '100%' }}
+            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+            placeholder="请选择"
             fieldNames={{
               label: 'name',
               value: 'id',
+              children: 'children',
             }}
-            style={{ width: 120 }}
-            options={industryList}
+            treeData={industryList}
           />
         </Form.Item>
         <Form.Item<ItemReq> label="所属场景" name="sceneIds">
-          <Select
+          <TreeSelect
+            multiple
+            showSearch
+            allowClear
+            treeDefaultExpandAll
+            style={{ width: '100%' }}
+            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+            placeholder="请选择"
             fieldNames={{
               label: 'name',
               value: 'id',
+              children: 'children',
             }}
-            style={{ width: 120 }}
-            options={sceneList}
+            treeData={sceneList}
           />
         </Form.Item>
-        <Form.Item<ItemReq> label="首图" name="indexImg">
-          <UploadAvatar helperText="" defaultAvatar={form.getFieldValue('indexImg')} onChange={setIndexImg}/>
+        <Form.Item<ItemReq> label="主要内容" name="content" required>
+          <Editor id="article-content-editor" value={content} onChange={setContent} />
         </Form.Item>
+        <Form.Item<ItemReq> label="优势" name="advantage" required>
+          <Editor id="article-advantage-editor" value={advantage} onChange={setAdvantage} />
+        </Form.Item>
+        <Form.Item<ItemReq> label="功能列表" name="functionSet" required>
+          <Editor id="article-functionSet-editor" value={functionSet} onChange={setFunctionSet} />
+        </Form.Item>
+
         <Form.Item<ItemReq> label="PC端体验地址" name="demoPcLink">
           <Input />
         </Form.Item>
@@ -224,19 +250,6 @@ export default function SolutionEditPage() {
         <Form.Item<ItemReq> label="体验次数" name="demoCount">
           <Input />
         </Form.Item>
-        <Form.Item<ItemReq> label="方案简介" name="info" required>
-          <Input.TextArea />
-        </Form.Item>
-        <Form.Item<ItemReq> label="主要内容" name="content" required>
-          <Editor id="article-content-editor" value={content} onChange={setContent} />
-        </Form.Item>
-        <Form.Item<ItemReq> label="优势" name="advantage" required>
-          <Editor id="article-advantage-editor" value={advantage} onChange={setAdvantage} />
-        </Form.Item>
-        <Form.Item<ItemReq> label="功能列表" name="functionSet" required>
-          <Editor id="article-functionSet-editor" value={functionSet} onChange={setFunctionSet} />
-        </Form.Item>
-
         <Form.Item<ItemReq> label="显示状态" name="ifShow" required>
           <Radio.Group optionType="button" buttonStyle="solid">
             <Tooltip title="‘待定’表示用户提交的类目名称，需要设置成‘显示’或者‘禁用’">
@@ -250,8 +263,8 @@ export default function SolutionEditPage() {
         </Form.Item>
         <Form.Item<ItemReq> label="是否热门" name="ifHot" required>
           <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfHotStatus.ENABLE}> 是 </Radio>
-            <Radio value={IfHotStatus.DISABLE}> 否 </Radio>
+            <Radio value={IfHotStatus.是}> 是 </Radio>
+            <Radio value={IfHotStatus.否}> 否 </Radio>
           </Radio.Group>
         </Form.Item>
         <Form.Item<ItemReq> label="排序" name="sort">

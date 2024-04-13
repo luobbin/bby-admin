@@ -27,22 +27,25 @@ export default function SupportPage() {
     {
       title: "名称",
       dataIndex: "customerName",
-      width: 300
+      width: 120
     },
     {
-      title: "所属公司",
-      dataIndex: "company.name",
-      width: 300
+      title: "所属服务商",
+      dataIndex: "tCompany",
+      width: 200,
+      render: (tCompany) => <div>{tCompany.name}</div>,
     },
     {
       title: "所属行业",
-      dataIndex: "industry.name",
-      width: 300
+      dataIndex: "tIndustry",
+      width: 100,
+      render: (tIndustry) => <div>{tIndustry.name}</div>,
     },
     {
       title: "所属地区",
-      dataIndex: "region.name",
-      width: 300
+      dataIndex: "tRegion",
+      width: 100,
+      render: (tRegion) => <div>{tRegion.name}</div>,
     },
     {
       title: "状态",

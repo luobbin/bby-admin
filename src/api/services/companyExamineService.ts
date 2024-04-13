@@ -29,7 +29,7 @@ export interface CompanyExamine {
   mobile: string;
   address: string;
   contactSet: string;
-  ifCheck: number;
+  ifCheck: 0|1|2;
   reason: string;
 }
 

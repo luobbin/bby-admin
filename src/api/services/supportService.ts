@@ -86,6 +86,30 @@ export const useUpdate = () => {
   }, []);
 };
 
+export const useList = () => {
+  const { message } = App.useApp();
+  const mutation = useMutation(itemList);
+  // eslint-disable-next-line consistent-return
+  return useCallback(async (pageReq: SearchReq) => {
+    pageReq.pageSize = 100;
+    try {
+      const res = await mutation.mutateAsync(pageReq);
+      if (res && Reflect.has(res,'list')) {
+        // @ts-ignore
+        const dataList: Support[] = res.list;
+        // console.log('获取到返回结果', dataList);
+        return dataList;
+      }
+    } catch (err) {
+      message.warning({
+        content: err.message,
+        duration: 3,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+};
+
 export default {
   itemList,
   itemAdd,
@@ -93,4 +117,5 @@ export default {
   usePage,
   useAdd,
   useUpdate,
+  useList,
 };

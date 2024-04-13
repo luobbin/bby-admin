@@ -6,7 +6,7 @@ import { IconButton, Iconify } from '@/components/icon';
 import ProTag from '@/theme/antd/components/tag';
 
 import { PageList, SearchReq, ItemReq, usePage } from '@/api/services/solutionBusinessService';
-import { SolutionBusinessModal, ItemModalProps } from './solutionBusiness-modal.tsx';
+import { SolutionBusinessModal, ItemModalProps } from './solutionBusiness-modal';
 
 import { PageRes } from '#/entity';
 import { BusinessStatus } from '#/enum';
@@ -41,18 +41,21 @@ export default function SolutionBusinessPage() {
   const columns: ColumnsType<PageList> = [
     {
       title: "对接客户",
-      dataIndex: "tUser.account",
-      width: 300
+      dataIndex: "tUser",
+      width: 300,
+      render: (tUser)=><div>{tUser.account}</div>
     },
     {
-      title: "对接公司",
-      dataIndex: "tCompany.name",
-      width: 300
+      title: "对接服务商",
+      dataIndex: "tCompany",
+      width: 300,
+      render: (tCompany)=><div>{tCompany.name}</div>
     },
     {
       title: "对接解决方案",
-      dataIndex: "tSolution.name",
-      width: 300
+      dataIndex: "tSolution",
+      width: 300,
+      render: (tSolution)=><div>{tSolution.name}</div>
     },
     {
       title: "状态",

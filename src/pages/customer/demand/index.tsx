@@ -40,7 +40,7 @@ export default function DemandPage() {
       align: 'center',
       width: 120,
       render: (ifDel) => (
-        <ProTag color={ifDel === IfDelStatus.NO ? 'success' : 'error'}>
+        <ProTag color={ifDel === IfDelStatus.否 ? 'success' : 'error'}>
           {IfDelStatus[ifDel]}
         </ProTag>
       ),

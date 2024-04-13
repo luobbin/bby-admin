@@ -121,8 +121,8 @@ export function CaseModal({ title, show, formValue, onOk, onCancel }: CaseModalP
 
         <Form.Item<Case> label="删除状态" name="ifDel" required>
           <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfDelStatus.NO}> 否 </Radio>
-            <Radio value={IfDelStatus.YES}> 是 </Radio>
+            <Radio value={IfDelStatus.否}> 否 </Radio>
+            <Radio value={IfDelStatus.是}> 是 </Radio>
           </Radio.Group>
         </Form.Item>
         <Form.Item<Case> label="排序" name="sort" required>

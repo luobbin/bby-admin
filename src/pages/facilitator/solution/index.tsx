@@ -48,7 +48,7 @@ export default function SolutionPage() {
       align: "center",
       width: 120,
       render: (ifHot) => (
-        <ProTag color={ifHot === IfHotStatus.ENABLE ? "success" : "error"}>{IfHotStatus[ifHot]}</ProTag>
+        <ProTag color={ifHot === IfHotStatus.是 ? "success" : "error"}>{IfHotStatus[ifHot]}</ProTag>
       )
     },
     { title: "创建时间", dataIndex: "createdAt", align: "center", width: 300 },

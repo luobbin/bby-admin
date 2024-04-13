@@ -10,8 +10,8 @@ export enum IfShowStatus {
 }
 
 export enum IfHotStatus {
-  DISABLE,
-  ENABLE,
+  否,
+  是,
 }
 
 export enum IfCheckStatus {
@@ -28,8 +28,8 @@ export enum BusinessStatus {
 }
 
 export enum IfDelStatus {
-  NO,
-  YES,
+  否,
+  是,
 }
 
 export enum IfServiceStatus {

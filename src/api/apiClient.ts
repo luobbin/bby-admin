@@ -21,7 +21,7 @@ axiosInstance.interceptors.request.use(
   (config) => {
     // 在请求被发送之前做些什么
     const userToken = getItem<UserToken>(StorageEnum.Token) || {};
-    console.log('获取到的token：', userToken);
+    // console.log('获取到的token：', userToken);
     config.headers.Authorization = `Bearer ${userToken.accessToken}`;
     return config;
   },

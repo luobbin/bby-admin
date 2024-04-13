@@ -21,7 +21,7 @@ const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pa
 const DEFAULE_VAL: ItemReq = {
   id: '',
   title: '',
-  ifDel: IfDelStatus.NO,
+  ifDel: IfDelStatus.否,
   info: '',
   content: '',
 };

@@ -17,8 +17,9 @@ export default function Editor({ id = 'slash-quill', sample = false, ...other }:
   const token = useThemeToken();
   const { themeMode } = useSettings();
   // 新数据进来时填充value
-  const [contentCn, setContentCn] = useState(); // 富文本内容
+  const [contentCn, setContentCn] = useState(''); // 富文本内容
   useEffect(() => {
+    // @ts-ignore
     setContentCn(other.value);
   }, [other.value]);
 
@@ -58,8 +59,8 @@ export default function Editor({ id = 'slash-quill', sample = false, ...other }:
         modules={modules}
         {...other}
         value={contentCn}
-        onChange={(content, delta, source, editor) => {
-          console.log(source);
+        onChange={(content, delta, _source, editor) => {
+          // console.log(source);
           // 如下代码可解决 图片粘贴后为base64,上传至服务器文件过大，所以需要将base64格式图片进行转换，具体方法如下：
           let delta_ops = delta.ops;
           let quilContent = editor.getContents();
@@ -68,7 +69,7 @@ export default function Editor({ id = 'slash-quill', sample = false, ...other }:
               if (item.insert) {
                 let imgStr = item.insert.image;
                 if (imgStr && imgStr?.includes(';base64,')) {
-                  console.log(imgStr);
+                  // console.log(imgStr);
                   const imgReq: ItemReq = {
                     'source': "3",
                     'type': "3",
@@ -87,6 +88,7 @@ export default function Editor({ id = 'slash-quill', sample = false, ...other }:
 
                   });
                 }else {
+                  // @ts-ignore
                   setContentCn(content);
                 }
               }
