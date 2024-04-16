@@ -1,12 +1,12 @@
-import { Alert, Button, Checkbox, Col, Form, Input, Row } from 'antd';
+import { Button, Checkbox, Col, Form, Input, Row } from 'antd';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { DEFAULT_USER, TEST_USER } from '@/_mock/assets';
+import { DEFAULT_USER } from '@/_mock/assets';
 import { LoginReq } from '@/api/services/userService';
 import { useLogin, useCaptcha } from '@/store/userStore';
-import ProTag from '@/theme/antd/components/tag';
-import { useThemeToken } from '@/theme/hooks';
+// import ProTag from '@/theme/antd/components/tag';
+// import { useThemeToken } from '@/theme/hooks';
 
 // import { LoginStateEnum, useLoginStateContext } from './providers/LoginStateProvider';
 
@@ -14,7 +14,7 @@ function LoginForm() {
   // 加载语言包
   const { t } = useTranslation();
   // 颜色主题
-  const themeToken = useThemeToken();
+  // const themeToken = useThemeToken();
   const [loading, setLoading] = useState(false);
   // 切换登录方式
   // const { loginState, setLoginState } = useLoginStateContext();
@@ -83,7 +83,7 @@ function LoginForm() {
         }}
         onFinish={handleFinish}
       >
-        <div className="mb-4 flex flex-col">
+       {/*  <div className="mb-4 flex flex-col">
           <Alert
             type="info"
             description={
@@ -112,7 +112,7 @@ function LoginForm() {
             }
             showIcon
           />
-        </div>
+        </div> */}
 
         <Form.Item
           name="username"

@@ -87,6 +87,7 @@
     "menu": {
       "website": "网站管理",
       "config": "网站设置",
+      "banner": "首页banner设置",
       "article": "资讯列表",
       "articleEdit": "资讯",
       "facilitator": "服务商管理",

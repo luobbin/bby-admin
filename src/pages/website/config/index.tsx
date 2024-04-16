@@ -3,7 +3,7 @@ import { Tabs, TabsProps } from 'antd';
 import { Iconify } from '@/components/icon';
 
 import GeneralTab from './general-tab';
-import BannersTab from './banners-tab.tsx';
+// import BannersTab from './banners-tab.tsx';
 import OthersTab from './others-tab.tsx';
 
 function ConfigSet() {
@@ -18,7 +18,7 @@ function ConfigSet() {
       ),
       children: <GeneralTab />,
     },
-    {
+    /* {
       key: '2',
       label: (
         <div className="flex items-center">
@@ -27,7 +27,7 @@ function ConfigSet() {
         </div>
       ),
       children: <BannersTab />,
-    },
+    }, */
     {
       key: '3',
       label: (

@@ -5,7 +5,7 @@ import Toolbar, { formats } from './toolbar';
 import { useSettings } from '@/store/settingStore';
 import { useThemeToken } from '@/theme/hooks';
 import { StyledEditor } from './styles';
-import { ItemReq, useAdd } from '@/api/services/uploadImgService';
+import { ItemReq, useUploadImg } from '@/api/services/uploadImgService';
 import { useState, useMemo, useRef, useEffect } from 'react';
 
 interface Props extends ReactQuillProps {
@@ -45,7 +45,7 @@ export default function Editor({ id = 'slash-quill', sample = false, ...other }:
     },
   }), []);
 
-  const add = useAdd();
+  const add = useUploadImg();
   const reactQuillRef = useRef<any>(null);
 
   return (

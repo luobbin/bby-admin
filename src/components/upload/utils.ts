@@ -126,6 +126,19 @@ export function beforeAvatarUpload(file: RcFile) {
   return isJpgOrPng && isLt2M;
 }
 
+export function beforeBizFileUpload(file: RcFile) {
+  const format = getFileFormat(file.name);
+  const isFile = format === 'pdf' || format === 'img' || format === 'txt' || format === 'word' || format === 'excel';
+  if (!isFile) {
+    message.error('You can only upload PDF/WORD/TEXT/IMG/EXCEL file!');
+  }
+  const isLt5M = file.size / 1024 / 1024 < 5;
+  if (!isLt5M) {
+    message.error('Image must smaller than 5MB!');
+  }
+  return isFile && isLt5M;
+}
+
 export function getBase64(img: RcFile, callback: (url: string) => void) {
   const reader = new FileReader();
   reader.addEventListener('load', () => callback(reader.result as string));

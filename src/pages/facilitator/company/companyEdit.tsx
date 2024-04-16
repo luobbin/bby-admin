@@ -6,8 +6,8 @@ import { useLocation } from 'react-router-dom';
 import { ItemReq, useAdd, useUpdate } from '@/api/services/companyService';
 import { IfDelStatus, IfHotStatus, IfServiceStatus, IfShowStatus } from "#/enum";
 import Editor from '@/components/editor';
-import { UploadAvatar } from '@/components/upload';
-import { PageRes } from "#/entity.ts";
+import { UploadAvatar, UploadBizFile } from '@/components/upload';
+import { PageRes } from '#/entity';
 
 import { usePage as useMemberPage, SearchReq as SearchMember} from '@/api/services/memberService';
 import { useList as useRegionPage, SearchReq as SearchRegion, } from '@/api/services/regionService';
@@ -43,6 +43,7 @@ export default function CompanyEditPage() {
   const [contactSet, setContactSet] = useState('');
   const [logo, setLogo] = useState('');
   const [indexImg, setIndexImg] = useState('');
+  const [qualificationList, setQualificationList] = useState<object[]>([]);
   const [memberList, setMemberList] = useState([]);
   const getMemberList = useMemberPage();
   const [regionList, setRegionList] = useState([]);
@@ -51,6 +52,7 @@ export default function CompanyEditPage() {
   const getIndustryList = useIndustryPage();
   const [supportList, setSupportList] = useState([]);
   const getSupportList = useSupportPage();
+  const [ifUpFile, setIfUpFile] = useState(false);
   useEffect(() => {
     //初始化参数
     if (currentLocation.state){
@@ -64,16 +66,22 @@ export default function CompanyEditPage() {
       if (form.getFieldValue('abilitySet') !== ''){
         form.setFieldValue('abilityList', JSON.parse(form.getFieldValue('abilitySet')));
       }
+      if (form.getFieldValue('qualificationSet') !== ''){
+        setQualificationList(JSON.parse(form.getFieldValue('qualificationSet')));
+      }
+      setIfUpFile(true);
     }
     //加载类目
     const handleList = async() => {
       try {
         // @ts-ignore
-        const memberReq: SearchMember = {
+        const memberReq: SearchMember = submitTitle=='创建'?{
           pageIndex: 1,
           pageSize: 10,
           ifDel: IfDelStatus.否,
           ifService: IfServiceStatus.否,
+        } : {
+          id: form.getFieldValue('userId'),
         };
         await getMemberList(memberReq).then((res) => {
           // @ts-ignore
@@ -97,7 +105,6 @@ export default function CompanyEditPage() {
           if (industryRes) {
             // @ts-ignore
             industryRes.push({ id: 0, name: '未选择',});
-            console.log('获取行业列表', industryRes);
             // @ts-ignore
             setIndustryList(industryRes);
           }
@@ -114,7 +121,6 @@ export default function CompanyEditPage() {
           if (regionRes) {
             // @ts-ignore
             regionRes.push({ id: 0, name: '未选择',});
-            console.log('获取地区列表', regionRes);
             // @ts-ignore
             setRegionList(regionRes);
           }
@@ -128,7 +134,6 @@ export default function CompanyEditPage() {
           if (supportRes) {
             // @ts-ignore
             supportRes.push({ id: 0, name: '未选择',});
-            console.log('获取服务列表', supportRes);
             // @ts-ignore
             setSupportList(supportRes);
           }
@@ -140,7 +145,6 @@ export default function CompanyEditPage() {
 
     }
     handleList();
-
   }, []);
 
   function updateIndexImg(newImg: string): void {
@@ -156,6 +160,12 @@ export default function CompanyEditPage() {
       form.setFieldValue('logo', newImg);
       setLogo(newImg);
     }
+  }
+
+  function updateQualification(values: object[]) {
+    form.setFieldValue('qualificationSet', JSON.stringify(values));
+    setQualificationList(values);
+    console.log('回调到的Qualification：', form.getFieldValue('qualificationSet'));
   }
 
   const renderUserSelect = submitTitle==='创建'?
@@ -188,7 +198,7 @@ export default function CompanyEditPage() {
     // @ts-ignore
     const item: ItemReq = form.getFieldsValue();
     item.abilitySet = JSON.stringify(form.getFieldValue('abilityList'));
-    setLoading(false);
+    item.qualificationSet = JSON.stringify(qualificationList);
     console.log('转换数据为', item);
     try {
       let res;
@@ -297,8 +307,8 @@ export default function CompanyEditPage() {
         <Form.Item<ItemReq> label="介绍" name="info">
           <Input.TextArea />
         </Form.Item>
-        <Form.Item<ItemReq> label="资质认证" name="qualificationSet">
-          <Input.TextArea placeholder="待处理。文件上传" />
+        <Form.Item<ItemReq> label="资质认证">
+          {ifUpFile && <UploadBizFile defaultList={qualificationList} onChange={updateQualification} />}
         </Form.Item>
         <Form.Item label={'能力列表'}>
           <Form.List

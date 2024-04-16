@@ -12,6 +12,7 @@ import { usePage as useMemberPage, SearchReq as SearchMember} from '@/api/servic
 import { usePage as useSolutionPage, SearchReq as SearchSolution} from '@/api/services/solutionService';
 import { Industry, PageRes, Region } from '#/entity';
 import Editor from '@/components/editor';
+import { UploadBizFile } from "@/components/upload";
 
 const dateFormat = 'YYYY-MM-DD';
 const DEFAULE_VAL: ItemReq = {
@@ -53,9 +54,10 @@ export default function DemandEditPage() {
   const [submitTitle, setSubmitTitle] = useState('');
   const [content, setContent] = useState('');
   const [qualification, setQualification] = useState('');
-  const [others, setOthers] = useState('');
+  const [othersList, setOthersList] = useState<object[]>([]);
   const [beginTime, setBeginTime] = useState(dayjs().format(dateFormat));
   const [endTime, setEndTime] = useState(dayjs().format(dateFormat));
+  const [ifUpFile, setIfUpFile] = useState(false);
   useEffect(() => {
     if (currentLocation.state){
       const { title, params } = currentLocation.state;
@@ -64,9 +66,12 @@ export default function DemandEditPage() {
       console.log("初始化数据", form.getFieldsValue());
       setContent(form.getFieldValue('content'));
       setQualification(form.getFieldValue('qualification'));
-      setOthers(form.getFieldValue('others'));
       setBeginTime(form.getFieldValue('beginTime'));
       setEndTime(form.getFieldValue('endTime'));
+      if (form.getFieldValue('others') !== ''){
+        setOthersList(JSON.parse(form.getFieldValue('others')));
+      }
+      setIfUpFile(true);
     }
     //加载类目
     const handleList = async () => {
@@ -102,7 +107,6 @@ export default function DemandEditPage() {
           if (solutionRes && Reflect.has(solutionRes, 'list')) {
             // @ts-ignore
             solutionRes.list.push({ id: 0, name: '未选择', });
-            console.log('获取解决方案列表', solutionRes.list);
             // @ts-ignore
             setSolutionList(solutionRes.list);
           }
@@ -120,7 +124,6 @@ export default function DemandEditPage() {
           if (industryRes) {
             // @ts-ignore
             industryRes.push({ id: 0, name: '未选择',});
-            console.log('获取行业列表', industryRes);
             // @ts-ignore
             setIndustryList(industryRes);
           }
@@ -137,13 +140,12 @@ export default function DemandEditPage() {
           if (regionRes) {
             // @ts-ignore
             regionRes.push({ id: 0, name: '未选择',});
-            console.log('获取地区列表', regionRes);
             // @ts-ignore
             setRegionList(regionRes);
           }
         });
       } finally {
-        console.log('加载完成');
+        console.log('类目加载完成');
       }
     };
     handleList();
@@ -161,6 +163,11 @@ export default function DemandEditPage() {
       setEndTime(dateString);
     }
   };
+  function updateOthers(values: object[]) {
+    form.setFieldValue('others', JSON.stringify(values));
+    setOthersList(values);
+    console.log('回调到的Others：', form.getFieldValue('others'));
+  }
 
   // 处理新增|更新
   const add = useAdd();
@@ -172,6 +179,10 @@ export default function DemandEditPage() {
     form.setFieldValue('endTime',endTime);
     form.setFieldValue('beginTime',beginTime);
     const item: ItemReq = form.getFieldsValue();
+    if (othersList.length > 0){
+      item.others = JSON.stringify(othersList);
+    }
+
     try {
       console.log('转换数据为', item);
       let res;
@@ -277,7 +288,7 @@ export default function DemandEditPage() {
           <Editor id="article-qualification-editor" value={qualification} onChange={setQualification} />
         </Form.Item>
         <Form.Item<ItemReq> label="其他附件" name="others">
-          <Editor id="article-others-editor" value={others} onChange={setOthers} />
+          {ifUpFile && <UploadBizFile defaultList={othersList} onChange={updateOthers} />}
         </Form.Item>
 
         <Form.Item<ItemReq> label="发布来源" name="source" required>

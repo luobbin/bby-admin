@@ -141,6 +141,15 @@ const WEBSITE_PERMISSION = {
     {
       id: '22',
       parentId: '2',
+      label: 'sys.menu.banner',
+      name: 'Banner',
+      type: PermissionType.MENU,
+      route: 'banner',
+      component: '/website/banner/index.tsx',
+    },
+    {
+      id: '23',
+      parentId: '2',
       label: 'sys.menu.article',
       name: 'Article',
       type: PermissionType.MENU,
@@ -148,7 +157,7 @@ const WEBSITE_PERMISSION = {
       component: '/website/article/index.tsx',
     },
     {
-      id: '23',
+      id: '24',
       parentId: '2',
       label: 'sys.menu.articleEdit',
       name: 'ArticleEdit',

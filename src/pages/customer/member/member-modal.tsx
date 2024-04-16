@@ -1,5 +1,5 @@
 import { Form, Modal, Input, Radio, Button, App } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { IfDelStatus, IfServiceStatus } from '#/enum';
 import { ItemReq, useAdd, useUpdate } from '@/api/services/memberService';
@@ -26,8 +26,10 @@ const DEFAULE_VAL: ItemReq = {
 
 export function MemberModal({ title, show, formValue, onOk, onCancel }: ItemModalProps) {
   const [form] = Form.useForm();
+  const [defaultImg, setDefaultImg] = useState('');
   useEffect(() => {
     form.setFieldsValue({ ...formValue });
+    setDefaultImg(form.getFieldValue('avatar'));
     console.log('更新的表单数据', form.getFieldsValue());
   }, [formValue, form]);
   // 处理新增|更新
@@ -111,7 +113,7 @@ export function MemberModal({ title, show, formValue, onOk, onCancel }: ItemModa
           <Input />
         </Form.Item>
         <Form.Item<ItemReq> label="头像" name="avatar">
-          <UploadAvatar helperText="" defaultAvatar={form.getFieldValue('avatar')} onChange={setAvatar}/>
+          <UploadAvatar helperText="" defaultAvatar={defaultImg} onChange={setAvatar}/>
         </Form.Item>
         <Form.Item<ItemReq> label="地址" name="address">
           <Input />

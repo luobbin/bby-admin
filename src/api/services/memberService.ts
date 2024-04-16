@@ -8,6 +8,7 @@ import { useCallback } from 'react';
 import { Result } from '#/api.ts';
 
 export interface SearchReq {
+  id: number;
   pageIndex: number;
   pageSize: number;
   name: string;

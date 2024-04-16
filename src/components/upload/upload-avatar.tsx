@@ -9,7 +9,7 @@ import { Iconify } from '../icon';
 
 import { StyledUploadAvatar } from './styles';
 import { beforeAvatarUpload, getBase64 } from "./utils";
-import { ImgItemRes, ItemReq, useAdd } from '@/api/services/uploadImgService';
+import { ImgItemRes, ItemReq, useUploadImg } from '@/api/services/uploadImgService';
 
 // @ts-ignore
 interface Props extends UploadProps {
@@ -17,9 +17,9 @@ interface Props extends UploadProps {
   helperText?: React.ReactElement | string;
   onChange: (newImg: string) => void // 通过参数传给父组件的值
 }
-const DEFAULT_IMG = import.meta.env.VITE_DEFAULT_IMG as string;
+// const DEFAULT_IMG = import.meta.env.VITE_DEFAULT_IMG as string;
 export function UploadAvatar({ helperText, defaultAvatar = '', ...other }: Props) {
-  defaultAvatar = defaultAvatar==''?DEFAULT_IMG:defaultAvatar
+  // defaultAvatar = defaultAvatar==''?DEFAULT_IMG:defaultAvatar
   // console.log("获取到图片：",defaultAvatar);
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>(defaultAvatar);
@@ -32,6 +32,7 @@ export function UploadAvatar({ helperText, defaultAvatar = '', ...other }: Props
   //重新加载显示图
   useEffect(() => {
     setImageUrl(defaultAvatar);
+    console.log('默认加载的图片', imageUrl);
   }, [defaultAvatar]);
 
   const beforeUpload = (file: RcFile) => {
@@ -43,7 +44,7 @@ export function UploadAvatar({ helperText, defaultAvatar = '', ...other }: Props
     return ifUpload;
   }
   
-  const add = useAdd();
+  const add = useUploadImg();
   const handleChange: UploadProps['onChange'] = async (info: UploadChangeParam<UploadFile>) => {
     console.log("开始上传了",info.file.status)
     if (info.file.status === 'uploading') {
@@ -97,7 +98,7 @@ export function UploadAvatar({ helperText, defaultAvatar = '', ...other }: Props
 
   const defaultHelperText = (
     <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-      Allowed *.jpeg, *.jpg, *.png, *.gif
+      允许 *.jpeg, *.jpg, *.png, *.gif
       <br /> max size of {fBytes(3145728)}
       {loading ? <LoadingOutlined /> : <PlusOutlined />}
     </Typography.Text>
@@ -107,7 +108,6 @@ export function UploadAvatar({ helperText, defaultAvatar = '', ...other }: Props
   return (
     <StyledUploadAvatar>
       <Upload
-        action={undefined}
         name="avatar"
         showUploadList={false}
         listType="picture-circle"

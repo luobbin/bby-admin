@@ -10,7 +10,7 @@ import { useResponsive, useThemeToken } from '@/theme/hooks';
 
 import AccountDropdown from '../_common/account-dropdown';
 import BreadCrumb from '../_common/bread-crumb';
-import NoticeButton from '../_common/notice';
+// import NoticeButton from '../_common/notice';
 import SearchBar from '../_common/search-bar';
 import SettingButton from '../_common/setting-button';
 
@@ -74,7 +74,7 @@ export default function Header({ className = '', offsetTop = false }: Props) {
           <div className="flex">
             <SearchBar />
             <LocalePicker />
-            <NoticeButton />
+            {/* <NoticeButton /> */}
             <SettingButton />
             <AccountDropdown />
           </div>

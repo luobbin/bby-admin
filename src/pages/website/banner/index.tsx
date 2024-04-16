@@ -3,7 +3,16 @@ import Table, { ColumnsType } from 'antd/es/table';
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 
-import { ItemReq, SearchReq, PageList, usePage, useAdd, useUpdate, useDel } from '@/api/services/configService';
+import {
+  ItemReq,
+  SearchReq,
+  PageList,
+  usePage,
+  useAdd,
+  useUpdate,
+  useDel,
+  ItemDelReq
+} from "@/api/services/configService";
 import { IconButton, Iconify } from '@/components/icon';
 import { PageRes } from '#/entity';
 import { UploadAvatar } from '@/components/upload';
@@ -20,8 +29,9 @@ const DEFAULE_VAL: ItemReq = {
   remark: '',
 };
 
-export default function BannersTab() {
+export default function BannerPage() {
   const { message } = App.useApp();
+  const [data, setData] = useState<PageList[]>([]);
   const [modalProps, setModalProps] = useState<ItemModalProps>({
     formValue: { ...DEFAULE_VAL },
     title: 'New',
@@ -37,10 +47,19 @@ export default function BannersTab() {
   });
 
   const del = useDel();
-  const confirmDel = (e: any) => {
-    console.log(e);
+  const confirmDel = async (param: ItemReq) => {
+    console.log(param);
     message.success('Click on Yes');
-
+    const params: ItemDelReq = {
+      ids: [param.id]
+    }
+    const res = await del(params);
+    if (res){
+      const newData = data.filter(item => item.id !== param.id);
+      // 更新数据源
+      setData(newData);
+      message.success("删除成功！")
+    }
   }
 
   // 设置表格的列
@@ -81,7 +100,7 @@ export default function BannersTab() {
           <IconButton onClick={() => onEdit(record)}>
             <Iconify icon="solar:pen-bold-duotone" size={18} />
           </IconButton>
-          <Popconfirm title="抱歉，暂不支持删除" okText="是" cancelText="否" placement="left" onConfirm={confirmDel}>
+          <Popconfirm title="确定要删除" okText="是" cancelText="否" placement="left" onConfirm={() => confirmDel(record)}>
             <IconButton>
               <Iconify icon="mingcute:delete-2-fill" size={18} className="text-error" />
             </IconButton>
@@ -91,7 +110,6 @@ export default function BannersTab() {
     },
   ];
 
-  const [data, setData] = useState([]);
   const onCreate = () => {
     setModalProps((prev) => ({
       ...prev,
@@ -140,7 +158,7 @@ export default function BannersTab() {
     handlePage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  console.log("执行表格")
   return (
     <Space direction="vertical" size="large" className="w-full">
       <Card
@@ -176,11 +194,11 @@ export type ItemModalProps = {
 
 export function BannerModal({ title, show, formValue, onOk, onCancel }: ItemModalProps) {
   const [form] = Form.useForm();
-  const [ifLoad, setIfLoad] = useState(false);
+  const [defaultImg, setDefaultImg] = useState('');
   useEffect(() => {
     form.setFieldsValue({ ...formValue });
-    console.log('更新的表单数据', form.getFieldsValue());
-    setIfLoad(true);
+    setDefaultImg(form.getFieldValue('configValue'));
+    console.log('更新的数据', form.getFieldValue('configValue'));
   }, [formValue, form]);
 
   // 处理新增|更新
@@ -262,8 +280,7 @@ export function BannerModal({ title, show, formValue, onOk, onCancel }: ItemModa
           <Input placeholder="Banner名称" />
         </Form.Item>
         <Form.Item<ItemReq> label="图片" name="configValue">
-          {ifLoad && <UploadAvatar defaultAvatar={form.getFieldValue('configValue')}
-                                   onChange={setBannerImg} />}
+          <UploadAvatar defaultAvatar={defaultImg} onChange={setBannerImg} />
         </Form.Item>
         <Form.Item<ItemReq> label="备注" name="remark">
           <Input.TextArea />

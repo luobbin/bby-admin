@@ -25,9 +25,19 @@ const itemRender: (thumbnail: boolean) => ItemRender = (thumbnail) => {
 };
 export function Upload({ thumbnail = false, ...other }: Props) {
   const { colorPrimary } = useThemeToken();
+
   return (
     <StyledUpload $thumbnail={thumbnail}>
-      <Dragger {...other} itemRender={itemRender(thumbnail)}>
+      <Dragger
+        action={(file)=>{
+          console.log("上传的文件名",file.name);
+          return 'http://localhost:8090/api/v1/public/uploadFile';
+        }}
+        data={{'type':4, 'source':3}}
+        {...other}
+        method="POST"
+        itemRender={itemRender(thumbnail)}
+      >
         <div className="opacity-100 hover:opacity-80">
           <p className="m-auto max-w-[200px]">
             <UploadIllustration />

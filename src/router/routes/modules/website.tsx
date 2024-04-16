@@ -7,6 +7,7 @@ import { CircleLoading } from '@/components/loading';
 import { AppRouteObject } from '#/router';
 
 const ConfigPage = lazy(() => import('@/pages/website/config'));
+const BannerPage = lazy(() => import('@/pages/website/banner'));
 const ArticlePage = lazy(() => import('@/pages/website/article'));
 const ArticleEditPage = lazy(() => import('@/pages/website/article/articleEdit'));
 
@@ -32,6 +33,11 @@ const website: AppRouteObject = {
       path: 'config',
       element: <ConfigPage />,
       meta: { label: 'sys.menu.config', key: '/website/config' },
+    },
+    {
+      path: 'banner',
+      element: <BannerPage />,
+      meta: { label: 'sys.menu.banner', key: '/website/banner' },
     },
     {
       path: 'article',
