@@ -11,7 +11,7 @@ import { PageRes } from '#/entity';
 
 type SearchFormFieldType = keyof SearchReq;
 const PAGE_TITLE = '需求对接 列表';
-const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:3, };
+const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:10, };
 const DEFAULE_VAL: ItemReq = {
   id: '',
   companyId: 0,

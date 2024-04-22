@@ -13,18 +13,10 @@ import {
 } from '@/api/services/articleService';
 
 import { PageRes } from '#/entity';
-import { IfDelStatus } from '#/enum';
 
 type SearchFormFieldType = keyof SearchReq;
 const PAGE_TITLE = '资讯 列表';
 const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:10, };
-const DEFAULE_VAL: ItemReq = {
-  id: '',
-  title: '',
-  ifDel: IfDelStatus.否,
-  info: '',
-  content: '',
-};
 
 export default function ArticlePage() {
   const [searchForm] = Form.useForm();
@@ -67,10 +59,10 @@ export default function ArticlePage() {
   });
   const navigate = useNavigate();
   const onCreate = () => {
-    navigate('/website/articleEdit', { state: { title: '创建', params: DEFAULE_VAL } });
+    navigate('/website/articleEdit', { state: { title: '创建', params: '' } });
   };
   const onEdit = (formValue: ItemReq) => {
-    navigate('/website/articleEdit', { state: { title: '创建', params: formValue } });
+    navigate('/website/articleEdit', { state: { title: '更新', params: formValue } });
   };
 
   const getPage = usePage();

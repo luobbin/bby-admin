@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 type SearchFormFieldType = keyof SearchReq;
 const PAGE_TITLE = '案例 列表';
-const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:3, };
+const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:10, };
 
 export default function SupportPage() {
   const [searchForm] = Form.useForm();

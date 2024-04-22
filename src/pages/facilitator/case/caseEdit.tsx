@@ -1,11 +1,10 @@
-import { Form, Space, Input, Radio, InputNumber, Select, App, Button, DatePicker } from 'antd';
+import { Form, Space, Input, InputNumber, Select, App, Button, DatePicker } from 'antd';
 import type { DatePickerProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 import { ItemReq, useAdd, useUpdate } from '@/api/services/caseService';
-import { IfDelStatus } from '#/enum';
 import { useList as useRegionPage, SearchReq as SearchRegion, } from '@/api/services/regionService';
 import { usePage as useCompanyPage, SearchReq as SearchCompany} from '@/api/services/companyService';
 import { useList as useIndustryPage, SearchReq as SearchIndustry} from '@/api/services/industryService';
@@ -29,7 +28,6 @@ const DEFAULE_VAL: ItemReq = {
   content: "",
   qualification: "",
   others: "",
-  ifDel: IfDelStatus.否,
   sort: 0,
 };
 
@@ -264,12 +262,6 @@ export default function ItemReqEditPage() {
           <Editor id="article-others-editor" value={others} onChange={setOthers} />
         </Form.Item>
 
-        <Form.Item<ItemReq> label="删除状态" name="ifDel" required>
-          <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfDelStatus.否}> 否 </Radio>
-            <Radio value={IfDelStatus.是}> 是 </Radio>
-          </Radio.Group>
-        </Form.Item>
         <Form.Item<ItemReq> label="排序" name="sort">
           <InputNumber style={{ width: '100%' }} />
         </Form.Item>

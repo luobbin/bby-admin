@@ -39,23 +39,20 @@ export function MemberModal({ title, show, formValue, onOk, onCancel }: ItemModa
   const handleFinish = async () => {
     // @ts-ignore
     const item: ItemReq = form.getFieldsValue();
-    try {
-      let res;
-      if (form.getFieldValue('id') === '') {
-        res = await add(item);
-      } else {
-        res = await update(item);
-      }
-      if (res){
-        form.setFieldsValue(DEFAULE_VAL);
-      }
-    } finally {
+    let res;
+    if (form.getFieldValue('id') === '') {
+      res = await add(item);
+    } else {
+      res = await update(item);
+    }
+    console.log('获取到的res',res)
+    if (res){
+      form.setFieldsValue(DEFAULE_VAL);// 提交到服务端
       notification.success({
         message: '成功',
         description: '提交成功',
         duration: 3,
       });
-      // 提交到服务端
       onOk();
     }
   };

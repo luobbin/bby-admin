@@ -9,7 +9,7 @@ import { ItemReq, useAdd, useUpdate } from '@/api/services/demandService';
 import { useList as useRegionPage, SearchReq as SearchRegion, } from '@/api/services/regionService';
 import { useList as useIndustryPage, SearchReq as SearchIndustry} from '@/api/services/industryService';
 import { usePage as useMemberPage, SearchReq as SearchMember} from '@/api/services/memberService';
-import { usePage as useSolutionPage, SearchReq as SearchSolution} from '@/api/services/solutionService';
+import { usePage as useCompanyPage, SearchReq as SearchSolution} from '@/api/services/companyService';
 import { Industry, PageRes, Region } from '#/entity';
 import Editor from '@/components/editor';
 import { UploadBizFile } from "@/components/upload";
@@ -23,7 +23,7 @@ const DEFAULE_VAL: ItemReq = {
   source: 0,
   regionId: 0,
   industryId: 0,
-  solutionId: 0,
+  companyId: 0,
   budget: 0,
   beginTime: dayjs().format(dateFormat),
   endTime: dayjs().format(dateFormat),
@@ -32,7 +32,6 @@ const DEFAULE_VAL: ItemReq = {
   content: '',
   qualification: '',
   others:'',
-  ifDel: IfDelStatus.否,
   sort: 0,
   ifVisit: IfVisitStatus.否,
 };
@@ -47,17 +46,18 @@ export default function DemandEditPage() {
   const getRegionList = useRegionPage();
   const [industryList, setIndustryList] = useState([]);
   const getIndustryList = useIndustryPage();
-  const [solutionList, setSolutionList] = useState([]);
-  const getSolutionList = useSolutionPage();
+  const [companyList, setCompanyList] = useState([]);
+  const getCompanyList = useCompanyPage();
   // 初始化数据
   const currentLocation = useLocation();
   const [submitTitle, setSubmitTitle] = useState('');
   const [content, setContent] = useState('');
   const [qualification, setQualification] = useState('');
   const [othersList, setOthersList] = useState<object[]>([]);
-  const [beginTime, setBeginTime] = useState(dayjs().format(dateFormat));
-  const [endTime, setEndTime] = useState(dayjs().format(dateFormat));
+  const [beginTime, setBeginTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [ifUpFile, setIfUpFile] = useState(false);
+  const [companyId, setCompanyId] = useState(0);
   useEffect(() => {
     if (currentLocation.state){
       const { title, params } = currentLocation.state;
@@ -72,6 +72,9 @@ export default function DemandEditPage() {
         setOthersList(JSON.parse(form.getFieldValue('others')));
       }
       setIfUpFile(true);
+      if (form.getFieldValue('companyId') > 0){
+        setCompanyId(form.getFieldValue('companyId'))
+      }
     }
     //加载类目
     const handleList = async () => {
@@ -99,16 +102,16 @@ export default function DemandEditPage() {
         const solutionReq: SearchSolution = {
           pageIndex: 1,
           pageSize: 10,
+          Id: companyId,
         };
-        await getSolutionList(solutionReq).then((res) => {
-          // console.log('获取方案数据', res);
+        await getCompanyList(solutionReq).then((res) => {
           // @ts-ignore
-          const solutionRes: PageRes = res;
-          if (solutionRes && Reflect.has(solutionRes, 'list')) {
+          const companyRes: PageRes = res;
+          if (companyRes && Reflect.has(companyRes, 'list')) {
             // @ts-ignore
-            solutionRes.list.push({ id: 0, name: '未选择', });
+            companyRes.list.push({ id: 0, name: '未选择', });
             // @ts-ignore
-            setSolutionList(solutionRes.list);
+            setCompanyList(companyRes.list);
           }
         });
         //获取列表
@@ -154,11 +157,13 @@ export default function DemandEditPage() {
 
   //处理时间
   const onPickBeginTime: DatePickerProps['onChange'] = (_date, dateString) => {
+    console.log('开始时间',dateString);
     if (dateString){
       setBeginTime(dateString);
     }
   };
   const onPickEndTime: DatePickerProps['onChange'] = (_date, dateString) => {
+    console.log('江苏时间',dateString)
     if (dateString) {
       setEndTime(dateString);
     }
@@ -176,15 +181,15 @@ export default function DemandEditPage() {
   const [loading, setLoading] = useState(false);
   const handleFinish = async () => {
     setLoading(true);
-    form.setFieldValue('endTime',endTime);
-    form.setFieldValue('beginTime',beginTime);
     const item: ItemReq = form.getFieldsValue();
     if (othersList.length > 0){
       item.others = JSON.stringify(othersList);
     }
-
+    item.beginTime = beginTime;
+    item.endTime = endTime;
+    console.log('转换数据为', item);
     try {
-      console.log('转换数据为', item);
+
       let res;
       if (form.getFieldValue("id") === "") {
         res = await add(item);
@@ -219,6 +224,8 @@ export default function DemandEditPage() {
         <Form.Item<ItemReq> label="ID" name="id" hidden>
           <Input />
         </Form.Item>
+        <Form.Item<ItemReq> label="预计开始时间" name="beginTime" hidden><Input /></Form.Item>
+        <Form.Item<ItemReq> label="预计结束时间" name="endTime" hidden><Input /></Form.Item>
         <Form.Item<ItemReq> label="项目名称" name="name" required>
           <Input />
         </Form.Item>
@@ -258,27 +265,17 @@ export default function DemandEditPage() {
             options={industryList}
           />
         </Form.Item>
-        <Form.Item<ItemReq> label="分配解决方案" name="solutionId">
-          <Select
-            fieldNames={{
-              label: 'name',
-              value: 'id',
-            }}
-            style={{ width: 120 }}
-            options={solutionList}
-          />
-        </Form.Item>
 
         <Form.Item<ItemReq> label="预算" name="budget" required>
           <InputNumber style={{ width: '50%' }} />
         </Form.Item>
         <Form.Item label="预计开始">
-          <DatePicker defaultValue={dayjs(beginTime)} format={dateFormat} onChange={onPickBeginTime} />
+          {ifUpFile && <DatePicker defaultValue={dayjs(beginTime)} format={dateFormat} onChange={onPickBeginTime} />}
         </Form.Item>
         <Form.Item label="预计结束">
-          <DatePicker defaultValue={dayjs(endTime)} format={dateFormat} onChange={onPickEndTime} />
+          {ifUpFile && <DatePicker defaultValue={dayjs(endTime)} format={dateFormat} onChange={onPickEndTime} />}
         </Form.Item>
-        <Form.Item<ItemReq> label="对接次数" name="inviteCount" required>
+        <Form.Item<ItemReq> label="对接次数" name="inviteCount">
           <InputNumber style={{ width: '50%' }} />
         </Form.Item>
         <Form.Item<ItemReq> label="项目介绍" name="content">
@@ -303,14 +300,18 @@ export default function DemandEditPage() {
             <Radio value={IfVisitStatus.是}> 是 </Radio>
           </Radio.Group>
         </Form.Item>
-        <Form.Item<ItemReq> label="是否删除" name="ifDel" required>
-          <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfDelStatus.否}> 否 </Radio>
-            <Radio value={IfDelStatus.是}> 是 </Radio>
-          </Radio.Group>
-        </Form.Item>
         <Form.Item<ItemReq> label="排序" name="sort">
           <InputNumber style={{ width: '100%' }} />
+        </Form.Item>
+        <Form.Item<ItemReq> label="分配对接服务商" name="companyId">
+          <Select
+            fieldNames={{
+              label: 'name',
+              value: 'id',
+            }}
+            style={{ width: 120 }}
+            options={companyList}
+          />
         </Form.Item>
         <Form.Item wrapperCol={{ span: 12, offset: 6 }}>
           <Button type="primary" htmlType="submit" className="w-full" loading={loading}>

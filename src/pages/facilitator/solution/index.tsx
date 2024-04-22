@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 type SearchFormFieldType = keyof SearchReq;
 const PAGE_TITLE = '商机 列表';
 const IFSHOW_TAG: Array<string> = ['待定', '显示', '禁用',];
-const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:3, };
+const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:10, };
 
 export default function SolutionPage() {
   const [searchForm] = Form.useForm();

@@ -33,7 +33,6 @@ export interface Case {
   content: string;
   qualification: string;
   others: string;
-  ifDel: 0 | 1;
   sort: number;
 }
 
@@ -65,7 +64,9 @@ export const usePage = () => {
   const mutation = useMutation(itemList);
   // eslint-disable-next-line consistent-return
   return useCallback(async (pageReq: SearchReq) => {
-    console.log('搜索到请求参数', pageReq);
+    if (!pageReq.idOrder){
+      pageReq.idOrder = "desc";
+    }
     try {
       const res = await mutation.mutateAsync(pageReq);
       return res;

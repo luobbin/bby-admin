@@ -12,7 +12,7 @@ import { ItemReq, PageList, SearchReq, usePage } from '@/api/services/demandServ
 
 type SearchFormFieldType = keyof SearchReq;
 const PAGE_TITLE = '需求 列表';
-const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:3, };
+const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:10, };
 export default function DemandPage() {
   const [searchForm] = Form.useForm();
   const columns: ColumnsType<PageList> = [
@@ -35,15 +35,14 @@ export default function DemandPage() {
       ),
     },
     {
-      title: '是否删除',
-      dataIndex: 'ifDel',
-      align: 'center',
-      width: 120,
-      render: (ifDel) => (
-        <ProTag color={ifDel === IfDelStatus.否 ? 'success' : 'error'}>
-          {IfDelStatus[ifDel]}
-        </ProTag>
-      ),
+      title: '预计开始',
+      dataIndex: 'beginTime',
+      width: 300,
+    },
+    {
+      title: '预计结束',
+      dataIndex: 'endTime',
+      width: 300,
     },
     {
       title: '是否上门',

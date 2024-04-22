@@ -33,7 +33,6 @@ export const usePage = () => {
   const mutation = useMutation(itemList);
   // eslint-disable-next-line consistent-return
   return useCallback(async (pageReq: SearchReq) => {
-    console.log('搜索到请求参数', pageReq);
     try {
       const res = await mutation.mutateAsync(pageReq);
       return res;

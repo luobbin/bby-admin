@@ -123,14 +123,14 @@ export function CompanyExamineModal({ title, show, formValue, onOk, onCancel }: 
           <Input />
         </Form.Item>
         <Form.Item<ItemReq> label="申请用户" name="userId">
-          <Select
+          {memberList.length > 0 && <Select
             fieldNames={{
               label: 'account',
               value: 'id',
             }}
             style={{ width: 120 }}
             options={memberList}
-          />
+          />}
         </Form.Item>
         <Form.Item<ItemReq> label="公司名称" name="name" required>
           <Input />

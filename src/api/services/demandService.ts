@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 // eslint-disable-next-line import/extensions
 import { Result } from '#/api.ts';
 import { Member } from '@/api/services/memberService';
-import { Solution } from "@/api/services/solutionService.ts";
+import { Company } from '@/api/services/companyService';
 
 export interface SearchReq {
   pageIndex: number;
@@ -25,7 +25,7 @@ export interface Demand {
   userId: number;
   regionId: number;
   industryId: number;
-  solutionId: number;
+  companyId: number;
   budget: number;
   beginTime: string;
   endTime: string;
@@ -34,7 +34,6 @@ export interface Demand {
   content: string;
   qualification: string;
   others: string;
-  ifDel: 0 | 1;
   sort: number;
   ifVisit: 0 | 1;
 }
@@ -44,7 +43,7 @@ export interface PageList extends Demand {
   tUser: Member;
   tRegion: Region;
   tIndustry: Industry;
-  tSolution: Solution;
+  tCompany: Company;
   createdAt: string;
   updatedAt: string;
 }
@@ -68,7 +67,9 @@ export const usePage = () => {
   const mutation = useMutation(itemList);
   // eslint-disable-next-line consistent-return
   return useCallback(async (pageReq: SearchReq) => {
-    console.log('搜索到请求参数', pageReq);
+    if (!pageReq.idOrder){
+      pageReq.idOrder = "desc";
+    }
     try {
       const res = await mutation.mutateAsync(pageReq);
       return res;

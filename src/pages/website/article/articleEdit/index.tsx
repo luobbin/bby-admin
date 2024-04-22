@@ -1,15 +1,13 @@
-import { Form, Input, Radio, Button, App, Space } from 'antd';
+import { Form, Input, Button, App, Space } from 'antd';
 import { useEffect, useState} from 'react';
 import { useLocation } from 'react-router-dom';
 
 import Editor from '@/components/editor';
 import { ItemReq, useAdd, useUpdate } from '@/api/services/articleService.ts';
-import { IfDelStatus } from '#/enum.ts';
 
 const DEFAULE_VAL: ItemReq = {
   id: "",
   title: "",
-  ifDel: IfDelStatus.否,
   info: "",
   content: ""
 };
@@ -17,20 +15,23 @@ const DEFAULE_VAL: ItemReq = {
 export default function ArticleEditPage()  {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
-  const [formValue, setFormValue] = useState<ItemReq>();
-  const [submitTitle, setSubmitTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [submitTitle, setSubmitTitle] = useState('');
+  const [content, setContent] = useState('');
 
   const currentLocation = useLocation();
   useEffect(() => {
     if (currentLocation.state){
       const { title, params } = currentLocation.state;
-      setFormValue(params);
       setSubmitTitle(title);
-      setContent(params.content);
+      if (title === '创建'){
+        form.setFieldsValue(DEFAULE_VAL);
+      }else {
+        console.log('获取到文章内容', params.content)
+        form.setFieldsValue(params);
+        setContent(params.content);
+      }
     }
-    form.setFieldsValue(formValue);
-  }, [formValue, form]);
+  }, []);
 
   const add = useAdd();
   const update = useUpdate();
@@ -51,21 +52,20 @@ export default function ArticleEditPage()  {
       }
       if (res){
         form.setFieldsValue(DEFAULE_VAL);
+        notification.success({
+          message: "成功",
+          description: "提交成功",
+          duration: 3
+        });
       }
     } finally {
-      notification.success({
-        message: "成功",
-        description: "提交成功",
-        duration: 3
-      });
-
       setLoading(false);
     }
   };
   return (
     <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
       <Form
-        initialValues={formValue}
+        initialValues={form}
         form={form}
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 18 }}
@@ -84,12 +84,6 @@ export default function ArticleEditPage()  {
         </Form.Item>
         <Form.Item<ItemReq> label="主要内容" name="content" required>
           <Editor id="article-content-editor" value={content} onChange={setContent} />
-        </Form.Item>
-        <Form.Item<ItemReq> label="是否删除" name="ifDel" required>
-          <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfDelStatus.否}> 否 </Radio>
-            <Radio value={IfDelStatus.是}> 是 </Radio>
-          </Radio.Group>
         </Form.Item>
         <Form.Item wrapperCol={{ span: 12, offset: 6 }}>
           <Button type="primary" htmlType="submit" className="w-full" loading={loading}>

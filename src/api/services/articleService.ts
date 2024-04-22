@@ -12,7 +12,6 @@ export interface SearchReq {
   pageSize: number;
   name: string;
   idOrder: string;
-  ifDel: 0 | 1;
   ifService: 0 | 1;
 }
 
@@ -21,7 +20,6 @@ export interface Article {
   title: string;
   info: string;
   content: string;
-  ifDel: 0 | 1;
 }
 
 export interface PageList extends Article {
@@ -51,7 +49,9 @@ export const usePage = () => {
   const mutation = useMutation(itemList);
   // eslint-disable-next-line consistent-return
   return useCallback(async (pageReq: SearchReq) => {
-    console.log('搜索到请求参数', pageReq);
+    if (!pageReq.idOrder){
+      pageReq.idOrder = "desc";
+    }
     try {
       const res = await mutation.mutateAsync(pageReq);
       return res;

@@ -13,7 +13,7 @@ import { IfShowStatus } from '#/enum';
 
 type SearchFormFieldType = keyof SearchReq;
 const IFSHOW_TAG: Array<string> = ['待定', '显示', '禁用',];
-const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:3, };
+const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:10, };
 const DEFAULE_VAL: Support = {
   id: "",
   name: "",

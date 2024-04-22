@@ -60,7 +60,7 @@ export default function Editor({ id = 'slash-quill', sample = false, ...other }:
         {...other}
         value={contentCn}
         onChange={(content, delta, _source, editor) => {
-          // console.log(source);
+          console.log(_source);
           // 如下代码可解决 图片粘贴后为base64,上传至服务器文件过大，所以需要将base64格式图片进行转换，具体方法如下：
           let delta_ops = delta.ops;
           let quilContent = editor.getContents();
