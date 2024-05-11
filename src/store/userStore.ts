@@ -717,7 +717,7 @@ const OTHERS_PERMISSION = [
     component: '/sys/others/blank.tsx',
   },
 ]; */
-const COMPONENTS_PERMISSION = {
+/* const COMPONENTS_PERMISSION = {
   id: '2271615060673773',
   parentId: '',
   label: 'sys.menu.components',
@@ -800,7 +800,7 @@ const COMPONENTS_PERMISSION = {
       component: '/components/chart/index.tsx',
     },
   ],
-};
+}; */
 
 export const PERMISSION_LIST = [
   WEBSITE_PERMISSION,
@@ -809,7 +809,7 @@ export const PERMISSION_LIST = [
   CATEGORIZE_PERMISSION,
   DASHBOARD_PERMISSION,
   // MANAGEMENT_PERMISSION,
-  COMPONENTS_PERMISSION,
+  // COMPONENTS_PERMISSION,
   // FUNCTIONS_PERMISSION,
   // MENU_LEVEL_PERMISSION,
   // ERRORS_PERMISSION,
