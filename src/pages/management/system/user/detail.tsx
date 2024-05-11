@@ -4,6 +4,7 @@ import { useParams } from '@/router/hooks';
 
 import type { UserInfo } from '#/entity';
 
+// @ts-ignore
 const USERS: UserInfo[] = USER_LIST;
 
 export default function UserDetail() {
@@ -11,7 +12,7 @@ export default function UserDetail() {
   const user = USERS.find((user) => user.id === id);
   return (
     <Card>
-      <p>这是用户{user?.username}的详情页面</p>
+      <p>这是用户{user?.userName}的详情页面</p>
     </Card>
   );
 }

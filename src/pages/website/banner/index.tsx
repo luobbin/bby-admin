@@ -24,7 +24,7 @@ const DEFAULE_VAL: ItemReq = {
   configName: '',
   configKey: '',
   configValue: '',
-  configType: 'Y',
+  configUrl: '',
   isFrontend: '2',
   remark: '',
 };
@@ -266,7 +266,7 @@ export function BannerModal({ title, show, formValue, onOk, onCancel }: ItemModa
         <Form.Item<ItemReq> label="Key" name="configKey" hidden>
           <Input />
         </Form.Item>
-        <Form.Item<ItemReq> label="类型" name="configType" hidden>
+        <Form.Item<ItemReq> label="链接" name="configUrl" hidden>
           <Input />
         </Form.Item>
         <Form.Item<ItemReq> label="分组" name="isFrontend" hidden>

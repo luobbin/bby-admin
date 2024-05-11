@@ -95,12 +95,12 @@ export default function SolutionBusinessPage() {
     }));
   };
   const onEdit = (formValue: ItemReq) => {
-    setModalProps((prev) => ({
-      ...prev,
-      show: true,
-      title: '更新',
-      formValue
-    }));
+          setModalProps((prev) => ({
+            ...prev,
+            show: true,
+            title: '更新',
+            formValue
+          }));
   };
 
   const getPage = usePage();

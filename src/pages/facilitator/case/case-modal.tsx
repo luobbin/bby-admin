@@ -1,8 +1,7 @@
-import { Form, Modal, Input, Radio, InputNumber, Button, Select } from 'antd';
+import { Form, Modal, Input, InputNumber, Button, Select } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { Case, useAdd, useUpdate } from '@/api/services/caseService';
-import { IfDelStatus } from '#/enum';
 
 export type CaseModalProps = {
   formValue: Case;
@@ -119,12 +118,6 @@ export function CaseModal({ title, show, formValue, onOk, onCancel }: CaseModalP
           />
         </Form.Item>
 
-        <Form.Item<Case> label="删除状态" name="ifDel" required>
-          <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfDelStatus.否}> 否 </Radio>
-            <Radio value={IfDelStatus.是}> 是 </Radio>
-          </Radio.Group>
-        </Form.Item>
         <Form.Item<Case> label="排序" name="sort" required>
           <InputNumber style={{ width: '100%' }} />
         </Form.Item>

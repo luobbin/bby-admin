@@ -9,7 +9,7 @@ import { useThemeToken } from '@/theme/hooks';
 
 import type { Role, UserInfo } from '#/entity';
 import { BasicStatus } from '#/enum';
-
+// @ts-ignore
 const USERS: UserInfo[] = USER_LIST;
 
 export default function RolePage() {
@@ -27,9 +27,9 @@ export default function RolePage() {
           <div className="flex">
             <img alt="" src={record.avatar} className="h-10 w-10 rounded-full" />
             <div className="ml-2 flex flex-col">
-              <span className="text-sm">{record.username}</span>
+              <span className="text-sm">{record.userName}</span>
               <span style={{ color: colorTextSecondary }} className="text-xs">
-                {record.email}
+                {record.userName}
               </span>
             </div>
           </div>

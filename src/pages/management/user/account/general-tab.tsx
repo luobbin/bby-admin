@@ -16,15 +16,20 @@ type FieldType = {
 };
 export default function GeneralTab() {
   const { notification } = App.useApp();
-  const { avatar, username, email } = useUserInfo();
+  const { avatar, userName } = useUserInfo();
   const initFormValues = {
-    name: username,
-    email,
+    name: userName,
     phone: faker.phone.number(),
     address: faker.location.county(),
     city: faker.location.city(),
     code: faker.location.zipCode(),
     about: faker.lorem.paragraphs(),
+  };
+  const handleAvatar = (newImg:string) => {
+    notification.success({
+      message: 'Update success!'+newImg,
+      duration: 3,
+    });
   };
   const handleClick = () => {
     notification.success({
@@ -36,7 +41,7 @@ export default function GeneralTab() {
     <Row gutter={[16, 16]}>
       <Col span={24} lg={8}>
         <Card className="flex-col !px-6 !pb-10 !pt-20">
-          <UploadAvatar defaultAvatar={avatar} />
+          <UploadAvatar defaultAvatar={avatar} onChange={handleAvatar} />
 
           <Space className="py-6">
             <div>Public Profile</div>

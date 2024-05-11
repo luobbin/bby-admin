@@ -22,7 +22,7 @@ export interface Config {
   configName: string;
   configKey: string;
   configValue: string;
-  configType: string;
+  configUrl: string;
   isFrontend: string;
   remark: string;
 }

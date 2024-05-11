@@ -1,9 +1,8 @@
-import { Form, Modal, Input, Radio, Button, App, Card } from 'antd';
+import { Form, Modal, Input, Button, App, Card } from 'antd';
 import { useEffect, useState } from 'react';
 
 import Editor from '@/components/editor';
 import { ItemReq, useAdd, useUpdate } from '@/api/services/articleService';
-import { IfDelStatus } from "#/enum";
 
 export type ItemModalProps = {
   formValue: ItemReq;
@@ -84,41 +83,6 @@ export function ArticleModal({ title, show, formValue, onOk, onCancel }: ItemMod
         <Card title="Editor Simple">
           <Editor id="sample-editor" sample value={quillSimple} onChange={setQuillSimple} />
         </Card>
-        {/* <Form.Item<ItemReq> label="介绍" name="info">
-          <Card title="Editor Simple">
-            <Editor id="info-editor" sample value={infoValue} onChange={setInfoValue} />
-          </Card>
-        </Form.Item>
-       <Form.Item<ItemReq> label="资质认证" name="qualificationSet" required>
-          <Editor
-            id="qualificationSet-editor"
-            sample
-            value={qualificationSetValue}
-            onChange={setQualificationSetValue}
-          />
-        </Form.Item>
-        <Form.Item<ItemReq> label="能力" name="abilitySet" required>
-          <Editor
-            id="abilitySet-editor"
-            sample
-            value={abilitySetValue}
-            onChange={setAbilitySetValue}
-          />
-        </Form.Item>
-        <Form.Item<ItemReq> label="在线咨询" name="contactSet" required>
-          <Editor
-            id="contactSet-editor"
-            sample
-            value={contactSetValue}
-            onChange={setContactSetValue}
-          />
-        </Form.Item> */}
-        <Form.Item<ItemReq> label="是否删除" name="ifDel" required>
-          <Radio.Group optionType="button" buttonStyle="solid">
-            <Radio value={IfDelStatus.否}> 否 </Radio>
-            <Radio value={IfDelStatus.是}> 是 </Radio>
-          </Radio.Group>
-        </Form.Item>
       </Form>
     </Modal>
   );

@@ -12,7 +12,7 @@ import { IfHotStatus, IfShowStatus } from '#/enum';
 import { useNavigate } from 'react-router-dom';
 
 type SearchFormFieldType = keyof SearchReq;
-const PAGE_TITLE = '商机 列表';
+const PAGE_TITLE = '解决方案 列表';
 const IFSHOW_TAG: Array<string> = ['待定', '显示', '禁用',];
 const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:10, };
 

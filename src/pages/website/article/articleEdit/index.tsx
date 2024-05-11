@@ -3,7 +3,7 @@ import { useEffect, useState} from 'react';
 import { useLocation } from 'react-router-dom';
 
 import Editor from '@/components/editor';
-import { ItemReq, useAdd, useUpdate } from '@/api/services/articleService.ts';
+import { ItemReq, useAdd, useUpdate } from '@/api/services/articleService';
 
 const DEFAULE_VAL: ItemReq = {
   id: "",
