@@ -10,9 +10,9 @@ import { Result } from '#/api.ts';
 export interface SearchReq {
   pageIndex: number;
   pageSize: number;
-  name: string;
-  pid: number;
-  ifShow: 0 | 1 | 2;
+  name?: string;
+  pid?: number;
+  ifShow?: 0 | 1 | 2;
 }
 
 export interface PageList extends Region{

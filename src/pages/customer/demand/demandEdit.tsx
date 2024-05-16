@@ -4,25 +4,35 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
 
-import { IfDelStatus, IfVisitStatus, SourceStatus } from '#/enum';
+import { BusinessStatus, IfDelStatus, IfVisitStatus, SourceStatus } from '#/enum';
 import { ItemReq, useAdd, useUpdate } from '@/api/services/demandService';
 import { useList as useRegionPage, SearchReq as SearchRegion, } from '@/api/services/regionService';
-import { useList as useIndustryPage, SearchReq as SearchIndustry} from '@/api/services/industryService';
-import { usePage as useMemberPage, SearchReq as SearchMember} from '@/api/services/memberService';
-import { usePage as useCompanyPage, SearchReq as SearchSolution} from '@/api/services/companyService';
-import { Industry, PageRes, Region } from '#/entity';
+import { useList as useScenePage, SearchReq as SearchScene} from '@/api/services/sceneService';
+import {
+  usePage as useMemberPage,
+  SearchReq as SearchMember,
+  Member
+} from '@/api/services/memberService';
+import {
+  usePage as useCompanyPage,
+  SearchReq as SearchCompany,
+  Company
+} from '@/api/services/companyService';
+import { PageRes, Region, Scene } from '#/entity';
 import Editor from '@/components/editor';
-import { UploadBizFile } from "@/components/upload";
+import { UploadBizFile } from '@/components/upload';
 
 const dateFormat = 'YYYY-MM-DD';
 const DEFAULE_VAL: ItemReq = {
-  id: '',
+  id: 0,
   name: '',
   companyName: '',
+  contactName: '',
+  contactPhone: '',
   userId: 0,
   source: 0,
   regionId: 0,
-  industryId: 0,
+  sceneId: 0,
   companyId: 0,
   budget: 0,
   beginTime: dayjs().format(dateFormat),
@@ -31,22 +41,22 @@ const DEFAULE_VAL: ItemReq = {
   info: '',
   content: '',
   qualification: '',
-  others:'',
+  otherSet:'',
   sort: 0,
   ifVisit: IfVisitStatus.否,
+  status:BusinessStatus.待处理
 };
 
 export default function DemandEditPage() {
   const [form] = Form.useForm();
-
   // 查询所有分类: 用户，地区，行业，解决方案
-  const [memberList, setMemberList] = useState([]);
+  const [memberList, setMemberList] = useState<Member[]>([]);
   const getMemberList = useMemberPage();
-  const [regionList, setRegionList] = useState([]);
+  const [regionList, setRegionList] = useState<Region[]>([]);
   const getRegionList = useRegionPage();
-  const [industryList, setIndustryList] = useState([]);
-  const getIndustryList = useIndustryPage();
-  const [companyList, setCompanyList] = useState([]);
+  const [sceneList, setSceneList] = useState<Scene[]>([]);
+  const getSceneList = useScenePage();
+  const [companyList, setCompanyList] = useState<Company[]>([]);
   const getCompanyList = useCompanyPage();
   // 初始化数据
   const currentLocation = useLocation();
@@ -54,7 +64,6 @@ export default function DemandEditPage() {
   const [content, setContent] = useState('');
   const [qualification, setQualification] = useState('');
   const [othersList, setOthersList] = useState<object[]>([]);
-  const [beginTime, setBeginTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [ifUpFile, setIfUpFile] = useState(false);
   const [companyId, setCompanyId] = useState(0);
@@ -66,84 +75,72 @@ export default function DemandEditPage() {
       console.log("初始化数据", form.getFieldsValue());
       setContent(form.getFieldValue('content'));
       setQualification(form.getFieldValue('qualification'));
-      setBeginTime(form.getFieldValue('beginTime'));
       setEndTime(form.getFieldValue('endTime'));
-      if (form.getFieldValue('others') !== ''){
-        setOthersList(JSON.parse(form.getFieldValue('others')));
+      if (form.getFieldValue('otherSet') !== ''){
+        setOthersList(JSON.parse(form.getFieldValue('otherSet')));
       }
-      setIfUpFile(true);
       if (form.getFieldValue('companyId') > 0){
         setCompanyId(form.getFieldValue('companyId'))
       }
+      setIfUpFile(true);
     }
     //加载类目
     const handleList = async () => {
       try {
-        // @ts-ignore
         const memberReq: SearchMember = {
           pageIndex: 1,
           pageSize: 10,
           ifDel: IfDelStatus.否,
         };
         await getMemberList(memberReq).then((res) => {
-          // console.log('获取用户数据', res);
           // @ts-ignore
-          const memberRes: PageRes = res;
-          if (memberRes && Reflect.has(memberRes, 'list')) {
+          const memberRes: PageRes<Member> = res;
+          if (memberRes && memberRes.list) {
             // @ts-ignore
-            memberRes.list.push({ id: 0, account: '未选择',});
-            console.log('获取客户列表', memberRes.list);
-            // @ts-ignore
+            memberRes.list.push({ id: 0, account: '未选择'});
             setMemberList(memberRes.list);
           }
         });
 
-        // @ts-ignore
-        const solutionReq: SearchSolution = {
+        const companyReq: SearchCompany = {
           pageIndex: 1,
           pageSize: 10,
           Id: companyId,
         };
-        await getCompanyList(solutionReq).then((res) => {
+        await getCompanyList(companyReq).then((res) => {
           // @ts-ignore
-          const companyRes: PageRes = res;
-          if (companyRes && Reflect.has(companyRes, 'list')) {
+          const companyRes: PageRes<Company> = res;
+          if (companyRes && companyRes.list) {
             // @ts-ignore
-            companyRes.list.push({ id: 0, name: '未选择', });
-            // @ts-ignore
+            companyRes.list.push({ id: 0, name: '未选择'});
             setCompanyList(companyRes.list);
           }
         });
-        //获取列表
-        // @ts-ignore
-        const industryReq: SearchIndustry = {
+
+        const sceneReq: SearchScene = {
           pageIndex: 1,
           pageSize: 10,
         };
-        await getIndustryList(industryReq).then((res) => {
-          // console.log('获取行业数据', res);
+        await getSceneList(sceneReq).then((res) => {
           // @ts-ignore
-          const industryRes: Industry[] = res;
+          const industryRes: Scene[] = res;
           if (industryRes) {
             // @ts-ignore
-            industryRes.push({ id: 0, name: '未选择',});
-            // @ts-ignore
-            setIndustryList(industryRes);
+            industryRes.push({ id: 0, name: '未选择'});
+            setSceneList(industryRes);
           }
         });
-        // @ts-ignore
+
         const regionReq: SearchRegion = {
           pageIndex: 1,
           pageSize: 10,
         };
         await getRegionList(regionReq).then((res) => {
-          // console.log('获取行业、、地区数据', res);
           // @ts-ignore
           const regionRes: Region[] = res;
           if (regionRes) {
             // @ts-ignore
-            regionRes.push({ id: 0, name: '未选择',});
-            // @ts-ignore
+            regionRes.push({ id: 0, name: '未选择'});
             setRegionList(regionRes);
           }
         });
@@ -156,22 +153,13 @@ export default function DemandEditPage() {
   }, []);
 
   //处理时间
-  const onPickBeginTime: DatePickerProps['onChange'] = (_date, dateString) => {
-    console.log('开始时间',dateString);
-    if (dateString){
-      setBeginTime(dateString);
-    }
-  };
   const onPickEndTime: DatePickerProps['onChange'] = (_date, dateString) => {
-    console.log('江苏时间',dateString)
     if (dateString) {
       setEndTime(dateString);
     }
   };
   function updateOthers(values: object[]) {
-    form.setFieldValue('others', JSON.stringify(values));
-    setOthersList(values);
-    console.log('回调到的Others：', form.getFieldValue('others'));
+    form.setFieldValue('otherSet', JSON.stringify(values));
   }
 
   // 处理新增|更新
@@ -182,16 +170,12 @@ export default function DemandEditPage() {
   const handleFinish = async () => {
     setLoading(true);
     const item: ItemReq = form.getFieldsValue();
-    if (othersList.length > 0){
-      item.others = JSON.stringify(othersList);
-    }
-    item.beginTime = beginTime;
     item.endTime = endTime;
     console.log('转换数据为', item);
     try {
 
       let res;
-      if (form.getFieldValue("id") === "") {
+      if (item.id===0) {
         res = await add(item);
         console.log('新增的数据结果为', res);
       } else {
@@ -200,17 +184,17 @@ export default function DemandEditPage() {
       }
       if (res){
         form.setFieldsValue(DEFAULE_VAL);
+        notification.success({
+          message: "成功",
+          description: "提交成功",
+          duration: 3
+        });
       }
     } finally {
-      notification.success({
-        message: "成功",
-        description: "提交成功",
-        duration: 3
-      });
       setLoading(false);
     }
   };
-  // @ts-ignore
+
   return (
     <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
       <Form
@@ -224,16 +208,20 @@ export default function DemandEditPage() {
         <Form.Item<ItemReq> label="ID" name="id" hidden>
           <Input />
         </Form.Item>
-        <Form.Item<ItemReq> label="预计开始时间" name="beginTime" hidden><Input /></Form.Item>
-        <Form.Item<ItemReq> label="预计结束时间" name="endTime" hidden><Input /></Form.Item>
         <Form.Item<ItemReq> label="项目名称" name="name" required>
-          <Input />
-        </Form.Item>
-        <Form.Item<ItemReq> label="公司名称" name="companyName" required>
           <Input />
         </Form.Item>
         <Form.Item<ItemReq> label="项目简介" name="info">
           <Input.TextArea />
+        </Form.Item>
+        <Form.Item<ItemReq> label="项目企业名称" name="companyName" required>
+          <Input />
+        </Form.Item>
+        <Form.Item<ItemReq> label="项目联系人" name="contactName" required>
+          <Input />
+        </Form.Item>
+        <Form.Item<ItemReq> label="项目联系方式" name="contactPhone" required>
+          <Input />
         </Form.Item>
         <Form.Item<ItemReq> label="所属用户" name="userId">
           <Select
@@ -245,7 +233,7 @@ export default function DemandEditPage() {
             options={memberList}
           />
         </Form.Item>
-        <Form.Item<ItemReq> label="所属地区" name="regionId">
+        <Form.Item<ItemReq> label="所在地区" name="regionId">
           <Select
             fieldNames={{
               label: 'name',
@@ -255,22 +243,19 @@ export default function DemandEditPage() {
             options={regionList}
           />
         </Form.Item>
-        <Form.Item<ItemReq> label="所属行业" name="industryId">
+        <Form.Item<ItemReq> label="所属场景" name="sceneId">
           <Select
             fieldNames={{
               label: 'name',
               value: 'id',
             }}
             style={{ width: 120 }}
-            options={industryList}
+            options={sceneList}
           />
         </Form.Item>
 
         <Form.Item<ItemReq> label="预算" name="budget" required>
           <InputNumber style={{ width: '50%' }} />
-        </Form.Item>
-        <Form.Item label="预计开始">
-          {ifUpFile && <DatePicker defaultValue={dayjs(beginTime)} format={dateFormat} onChange={onPickBeginTime} />}
         </Form.Item>
         <Form.Item label="预计结束">
           {ifUpFile && <DatePicker defaultValue={dayjs(endTime)} format={dateFormat} onChange={onPickEndTime} />}
@@ -284,7 +269,7 @@ export default function DemandEditPage() {
         <Form.Item<ItemReq> label="资质要求" name="qualification">
           <Editor id="article-qualification-editor" value={qualification} onChange={setQualification} />
         </Form.Item>
-        <Form.Item<ItemReq> label="其他附件" name="others">
+        <Form.Item<ItemReq> label="其他附件" name="otherSet">
           {ifUpFile && <UploadBizFile defaultList={othersList} onChange={updateOthers} />}
         </Form.Item>
 
@@ -301,7 +286,7 @@ export default function DemandEditPage() {
           </Radio.Group>
         </Form.Item>
         <Form.Item<ItemReq> label="排序" name="sort">
-          <InputNumber style={{ width: '100%' }} />
+          <InputNumber />
         </Form.Item>
         <Form.Item<ItemReq> label="分配对接服务商" name="companyId">
           <Select
@@ -312,6 +297,14 @@ export default function DemandEditPage() {
             style={{ width: 120 }}
             options={companyList}
           />
+        </Form.Item>
+        <Form.Item<ItemReq> label="对接状态" name="status" required>
+          <Radio.Group optionType="button" buttonStyle="solid">
+            <Radio value={BusinessStatus.待处理}> {BusinessStatus[0]} </Radio>
+            <Radio value={BusinessStatus.对接中}> {BusinessStatus[1]} </Radio>
+            <Radio value={BusinessStatus.对接成功}> {BusinessStatus[2]} </Radio>
+            <Radio value={BusinessStatus.对接失败}> {BusinessStatus[3]} </Radio>
+          </Radio.Group>
         </Form.Item>
         <Form.Item wrapperCol={{ span: 12, offset: 6 }}>
           <Button type="primary" htmlType="submit" className="w-full" loading={loading}>

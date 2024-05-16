@@ -13,7 +13,7 @@ import {
   useUpdate,
   useDel,
   ItemDelReq
-} from "@/api/services/configService";
+} from '@/api/services/configService';
 import { IconButton, Iconify } from '@/components/icon';
 import { PageRes } from '#/entity';
 import { UploadAvatar } from '@/components/upload';

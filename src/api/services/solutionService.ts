@@ -1,11 +1,11 @@
-import apiClient from "../apiClient";
-import { useMutation } from "@tanstack/react-query";
+import apiClient from '../apiClient';
+import { useMutation } from '@tanstack/react-query';
 
-import { Industry, PageRes, Scene } from "#/entity";
-import { App } from "antd";
-import { useCallback } from "react";
-import { Result } from "#/api.ts";
-import { Company } from "@/api/services/companyService";
+import { Industry, PageRes, Scene } from '#/entity';
+import { App } from 'antd';
+import { useCallback } from 'react';
+import { Result } from '#/api';
+import { Company } from '@/api/services/companyService';
 
 export interface SearchReq {
   pageIndex: number;

@@ -10,12 +10,12 @@ import { Member } from '@/api/services/memberService';
 export interface SearchReq {
   pageIndex: number;
   pageSize: number;
-  regionId: number;
-  Id: number;
-  name: string;
-  idOrder: string;
-  ifHot: 0 | 1;
-  ifShow: 0 | 1 | 2;
+  regionId?: number;
+  Id?: number;
+  name?: string;
+  idOrder?: string;
+  ifHot?: 0 | 1;
+  ifShow?: 0 | 1 | 2;
 }
 
 export interface Company {

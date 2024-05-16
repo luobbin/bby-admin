@@ -1,30 +1,31 @@
 import apiClient from '../apiClient';
 import { useMutation } from '@tanstack/react-query';
 
-import { Industry, PageRes, Region } from "#/entity";
+import { PageRes, Region, Scene } from '#/entity';
 import { App } from 'antd';
 import { useCallback } from 'react';
-// eslint-disable-next-line import/extensions
-import { Result } from '#/api.ts';
+import { Result } from '#/api';
 import { Member } from '@/api/services/memberService';
 import { Company } from '@/api/services/companyService';
 
 export interface SearchReq {
   pageIndex: number;
   pageSize: number;
-  name: string;
-  idOrder: string;
-  ifShow: 0 | 1 | 2;
+  name?: string;
+  idOrder?: string;
+  ifVisit?: 0 | 1 | 2;
 }
 
 export interface Demand {
-  id: string;
+  id: number;
   name: string;
   companyName: string;
+  contactName: string;
+  contactPhone: string;
   source: number;
   userId: number;
   regionId: number;
-  industryId: number;
+  sceneId: number;
   companyId: number;
   budget: number;
   beginTime: string;
@@ -33,17 +34,18 @@ export interface Demand {
   info: string;
   content: string;
   qualification: string;
-  others: string;
+  otherSet: string;
   sort: number;
+  status: number;
   ifVisit: 0 | 1;
 }
 
 
-export interface PageList extends Demand {
-  tUser: Member;
+export interface PageItem extends Demand {
+  tUser?: Member;
   tRegion: Region;
-  tIndustry: Industry;
-  tCompany: Company;
+  tScene: Scene;
+  tCompany?: Company;
   createdAt: string;
   updatedAt: string;
 }
@@ -51,6 +53,10 @@ export interface PageList extends Demand {
 export type ItemReq = Demand;
 
 export type NewItem = Omit<ItemReq, 'id'>;
+
+export interface ItemDelReq{
+  ids: number[];
+}
 
 export enum BaseApi {
   Uri = '/v1/t-demand',
@@ -61,7 +67,7 @@ const itemList = (params: SearchReq) =>
 const itemAdd = (params: NewItem) => apiClient.postString<Result>({ url: BaseApi.Uri, params });
 const itemUpdate = (params: ItemReq) =>
   apiClient.putString<Result>({ url: `${BaseApi.Uri}/${params.id}`, params });
-
+const itemdel = (params: ItemDelReq) => apiClient.deleteString<Result>({ url: BaseApi.Uri, params });
 export const usePage = () => {
   const { message } = App.useApp();
   const mutation = useMutation(itemList);
@@ -121,7 +127,22 @@ export const useUpdate = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 };
-
+export const useDel = () => {
+  const { message } = App.useApp();
+  const mutation = useMutation(itemdel);
+  return useCallback(async (param: ItemDelReq) => {
+    try {
+      const res = await mutation.mutateAsync(param);
+      return res;
+    } catch (err) {
+      message.warning({
+        content: err.message,
+        duration: 3,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+};
 export default {
   itemList,
   itemAdd,
@@ -129,4 +150,5 @@ export default {
   usePage,
   useAdd,
   useUpdate,
+  useDel,
 };

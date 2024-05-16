@@ -10,9 +10,9 @@ import { Result } from '#/api.ts';
 export interface SearchReq {
   pageIndex: number;
   pageSize: number;
-  pid: number;
-  name: string;
-  ifShow: 0 | 1 | 2;
+  pid?: number;
+  name?: string;
+  ifShow?: 0 | 1 | 2;
 }
 
 export interface PageList extends Scene{
