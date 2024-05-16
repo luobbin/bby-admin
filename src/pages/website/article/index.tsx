@@ -1,14 +1,17 @@
-import { Button, Card, Popconfirm, Form, Row, Input, Col, Space } from 'antd';
+import { Button, Card, Popconfirm, Form, Row, Input, Col, Space, message } from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 import { IconButton, Iconify } from '@/components/icon';
 
 import {
   ItemReq,
-  PageList,
+  PageItem,
+  ItemDelReq,
   SearchReq,
+  useDel,
   usePage,
 } from '@/api/services/articleService';
 
@@ -20,36 +23,8 @@ const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pa
 
 export default function ArticlePage() {
   const [searchForm] = Form.useForm();
-  //设置表格的列
-  const columns: ColumnsType<PageList> = [
-    {
-      title: "标题",
-      dataIndex: "title",
-      width: 300
-    },
-    { title: "创建时间", dataIndex: "createdAt", align: "center", width: 300 },
-    { title: "更新时间", dataIndex: "updatedAt", align: "center", width: 300 },
-    {
-      title: "操作",
-      key: "operation",
-      align: "center",
-      width: 100,
-      render: (_, record) => (
-        <div className="flex w-full justify-center text-gray">
-          <IconButton onClick={() => onEdit(record)}>
-            <Iconify icon="solar:pen-bold-duotone" size={18} />
-          </IconButton>
-          <Popconfirm title="抱歉，暂不支持删除" okText="是" cancelText="否" placement="left">
-            <IconButton>
-              <Iconify icon="mingcute:delete-2-fill" size={18} className="text-error" />
-            </IconButton>
-          </Popconfirm>
-        </div>
-      )
-    }
-  ];
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<PageItem[]>([]);
   const [pagePer, setPagePer] = useState({
     pagination: {
       current: DEFAULE_PAGE.pageIndex,
@@ -64,6 +39,19 @@ export default function ArticlePage() {
   const onEdit = (formValue: ItemReq) => {
     navigate('/website/articleEdit', { state: { title: '更新', params: formValue } });
   };
+  const del = useDel();
+  const onDel = async (id: number) => {
+    const params: ItemDelReq = {
+      ids: [id]
+    }
+    const res = await del(params);
+    if (res){
+      const newData = data.filter(item => item.id !== id);
+      // 更新数据源
+      setData(newData);
+      message.success("删除成功！")
+    }
+  }
 
   const getPage = usePage();
   useEffect(() => {
@@ -152,7 +140,50 @@ export default function ArticlePage() {
     }
   };
 
-
+//设置表格的列
+  const columns: ColumnsType<PageItem> = [
+    {
+      title: "标题",
+      dataIndex: "title",
+      width: 300
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      align: 'center',
+      width: 200,
+      render: (createdAt) => (
+        dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss')
+      )
+    },
+    {
+      title: "更新时间",
+      dataIndex: "updatedAt",
+      align: "center",
+      width: 300,
+      render: (updatedAt) => (
+        dayjs(updatedAt).format('YYYY-MM-DD HH:mm:ss')
+      )
+    },
+    {
+      title: "操作",
+      key: "operation",
+      align: "center",
+      width: 100,
+      render: (_, record) => (
+        <div className="flex w-full justify-center text-gray">
+          <IconButton onClick={() => onEdit(record)}>
+            <Iconify icon="solar:pen-bold-duotone" size={18} />
+          </IconButton>
+          <Popconfirm title="确定要删除" okText="是" cancelText="否" placement="left" onConfirm={() => onDel(record.id)}>
+            <IconButton>
+              <Iconify icon="mingcute:delete-2-fill" size={18} className="text-error" />
+            </IconButton>
+          </Popconfirm>
+        </div>
+      )
+    }
+  ];
 
   return (
     <Space direction="vertical" size="large" className="w-full">
@@ -196,7 +227,6 @@ export default function ArticlePage() {
           pagination={pagePer.pagination}
           onChange={onChangePage}
         />
-
       </Card>
     </Space>
   );

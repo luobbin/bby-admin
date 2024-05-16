@@ -1,7 +1,7 @@
 import { Form, Modal, Input, Radio, Tooltip, Button, App, InputNumber } from 'antd';
 import { useEffect } from 'react';
 
-import { ItemReq, useAdd, useUpdate } from '@/api/services/companyService';
+import { ItemReq, useIfShow } from '@/api/services/companyService';
 import { IfHotStatus, IfShowStatus } from '#/enum';
 
 export type ItemModalProps = {
@@ -13,28 +13,19 @@ export type ItemModalProps = {
 };
 export function CompanyModal({ title, show, formValue, onOk, onCancel }: ItemModalProps) {
   const [form] = Form.useForm();
-  // const [infoValue, setInfoValue] = useState('aaa');
-  // const [abilitySetValue, setAbilitySetValue] = useState('');
-  // const [contactSetValue, setContactSetValue] = useState('');
-  // const [qualificationSetValue, setQualificationSetValue] = useState('');
   useEffect(() => {
     form.setFieldsValue({ ...formValue });
-  }, [formValue, form]);
-  const add = useAdd();
-  const update = useUpdate();
+  }, [formValue]);
+
+  const update = useIfShow();
   const { notification } = App.useApp();
   const handleFinish = async () => {
     // @ts-ignore
     const item: ItemReq = form.getFieldsValue();
+    console.log('转换数据为', item);
     try {
-      console.log('转换数据为', item);
-      if (form.getFieldValue('id') === '') {
-        const res = await add(item);
-        console.log('新增的数据结果为', res);
-      } else {
-        const res = await update(item);
-        console.log('修改的数据结果为', res);
-      }
+      const res = await update(item);
+      console.log('修改的数据结果为', res);
     } finally {
       notification.success({
         message: '成功',
@@ -71,62 +62,6 @@ export function CompanyModal({ title, show, formValue, onOk, onCancel }: ItemMod
         <Form.Item<ItemReq> label="ID" name="id" hidden>
           <Input />
         </Form.Item>
-        <Form.Item<ItemReq> label="公司名称" name="name" required>
-          <Input />
-        </Form.Item>
-        <Form.Item<ItemReq> label="公司电话" name="mobile" required>
-          <Input />
-        </Form.Item>
-        <Form.Item<ItemReq> label="公司地址" name="address" required>
-          <Input />
-        </Form.Item>
-        <Form.Item<ItemReq> label="公司LOGO" name="logo" required>
-          <Input />
-        </Form.Item>
-        <Form.Item<ItemReq> label="公司展示图片" name="indexImg" required>
-          <Input />
-        </Form.Item>
-        <Form.Item<ItemReq> label="介绍" name="info">
-          <Input.TextArea />
-        </Form.Item>
-        <Form.Item<ItemReq> label="资质认证" name="qualificationSet">
-          <Input.TextArea />
-        </Form.Item>
-        <Form.Item<ItemReq> label="能力" name="abilitySet">
-          <Input.TextArea />
-        </Form.Item>
-        <Form.Item<ItemReq> label="在线咨询" name="contactSet">
-          <Input.TextArea />
-        </Form.Item>
-        {/* <Form.Item<ItemReq> label="介绍" name="info">
-          <Card title="Editor Simple">
-            <Editor id="info-editor" sample value={infoValue} onChange={setInfoValue} />
-          </Card>
-        </Form.Item>
-       <Form.Item<ItemReq> label="资质认证" name="qualificationSet" required>
-          <Editor
-            id="qualificationSet-editor"
-            sample
-            value={qualificationSetValue}
-            onChange={setQualificationSetValue}
-          />
-        </Form.Item>
-        <Form.Item<ItemReq> label="能力" name="abilitySet" required>
-          <Editor
-            id="abilitySet-editor"
-            sample
-            value={abilitySetValue}
-            onChange={setAbilitySetValue}
-          />
-        </Form.Item>
-        <Form.Item<ItemReq> label="在线咨询" name="contactSet" required>
-          <Editor
-            id="contactSet-editor"
-            sample
-            value={contactSetValue}
-            onChange={setContactSetValue}
-          />
-        </Form.Item> */}
         <Form.Item<ItemReq> label="显示状态" name="ifShow" required>
           <Radio.Group optionType="button" buttonStyle="solid">
             <Tooltip title="‘待定’表示用户提交的类目名称，需要设置成‘显示’或者‘禁用’">
@@ -144,8 +79,14 @@ export function CompanyModal({ title, show, formValue, onOk, onCancel }: ItemMod
             <Radio value={IfHotStatus.否}> 否 </Radio>
           </Radio.Group>
         </Form.Item>
+        <Form.Item<ItemReq> label="服务客户数" name="customerCount" required>
+          <InputNumber />
+        </Form.Item>
+        <Form.Item<ItemReq> label="解决方案数" name="solutionCount" required>
+          <InputNumber />
+        </Form.Item>
         <Form.Item<ItemReq> label="排序" name="sort" required>
-          <InputNumber style={{ width: '100%' }} />
+          <InputNumber />
         </Form.Item>
       </Form>
     </Modal>

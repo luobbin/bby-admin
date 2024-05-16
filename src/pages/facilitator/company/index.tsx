@@ -1,80 +1,42 @@
-import { Button, Card, Popconfirm, Form, Row, Input, Col, Select, Space } from 'antd';
+import { Button, Card, Form, Row, Input, Col, Select, Space } from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 import { IconButton, Iconify } from '@/components/icon';
 import ProTag from '@/theme/antd/components/tag';
 
-import { ItemReq, PageList, SearchReq, usePage } from '@/api/services/companyService';
+import { ItemReq, PageItem, SearchReq, usePage } from '@/api/services/companyService';
 
 
 import { PageRes } from '#/entity';
 import { IfShowStatus, IfHotStatus} from '#/enum';
+import { CompanyModal, ItemModalProps } from "@/pages/facilitator/company/company-modal";
 
 type SearchFormFieldType = keyof SearchReq;
 const PAGE_TITLE = '服务商 列表';
 const IFSHOW_TAG: Array<string> = ['待定', '显示', '禁用',];
 const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:10, };
+const DEFAULT_VAL:ItemReq={id:0,ifHot:0,ifShow:0,customerCount:0,solutionCount:0,sort:0};
 
 export default function CompanyPage() {
   const [searchForm] = Form.useForm();
-  //设置表格的列
-  const columns: ColumnsType<PageList> = [
-    {
-      title: "名称",
-      dataIndex: "name",
-      width: 300
-    },
-    {
-      title: "用户",
-      dataIndex: "tUser",
-      width: 100,
-      render: (tUser)=><div>{tUser.account}</div>
-    },
-    {
-      title: "状态",
-      dataIndex: "ifShow",
-      align: "center",
-      width: 80,
-      render: (ifShow) => (
-        <ProTag color={ifShow === IfShowStatus.ENABLE ? "success" : "error"}>{IFSHOW_TAG[ifShow]}</ProTag>
-      )
-    },
-    {
-      title: "热门",
-      dataIndex: "ifHot",
-      align: "center",
-      width: 80,
-      render: (ifHot) => (
-        <ProTag color={ifHot === IfHotStatus.是 ? "success" : "error"}>{IfHotStatus[ifHot]}</ProTag>
-      )
-    },
-    { title: "电话", dataIndex: "mobile", align: "center", width: 200 },
-    { title: "地址", dataIndex: "address", align: "center", width: 400 },
-    { title: "创建时间", dataIndex: "createdAt", align: "center", width: 200 },
-    { title: "更新时间", dataIndex: "updatedAt", align: "center", width: 200 },
-    {
-      title: "操作",
-      key: "operation",
-      align: "center",
-      width: 100,
-      render: (_, record) => (
-        <div className="flex w-full justify-center text-gray">
-          <IconButton onClick={() => onEdit(record)}>
-            <Iconify icon="solar:pen-bold-duotone" size={18} />
-          </IconButton>
-          <Popconfirm title="抱歉，暂不支持删除" okText="是" cancelText="否" placement="left">
-            <IconButton>
-              <Iconify icon="mingcute:delete-2-fill" size={18} className="text-error" />
-            </IconButton>
-          </Popconfirm>
-        </div>
-      )
-    }
-  ];
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
+
+  const [modalProps, setModalProps] = useState<ItemModalProps>({
+    formValue: {...DEFAULT_VAL},
+    title: 'New',
+    show: false,
+    onOk: () => {
+      setModalProps((prev) => {
+        return { ...prev, show: false };
+      });
+    },
+    onCancel: () => {
+      setModalProps((prev) => ({ ...prev, show: false }));
+    },
+  });
   const [pagePer, setPagePer] = useState({
     pagination: {
       current: DEFAULE_PAGE.pageIndex,
@@ -82,13 +44,22 @@ export default function CompanyPage() {
       total: 0, // 总数据量
     },
   })
-  const navigate = useNavigate();
-  const onCreate = () => {
-    navigate('/facilitator/companyEdit', { state: { title: '创建', params: '' } });
-  };
-  const onEdit = (formValue: ItemReq) => {
-    navigate('/facilitator/companyEdit', { state: { title: '更新', params: formValue } });
-  };
+  const onEdit = (record: PageItem) => {
+    const formValue:ItemReq = {
+      id: record.id,
+      ifHot: record.ifHot,
+      sort: record.sort,
+      customerCount: record.customerCount,
+      solutionCount: record.solutionCount,
+      ifShow: record.ifShow
+    };
+    setModalProps((prev) => ({
+      ...prev,
+      show: true,
+      title: `更新${record.name}`,
+      formValue,
+    }));
+  }
 
   const getPage = usePage();
   useEffect(() => {
@@ -173,6 +144,71 @@ export default function CompanyPage() {
       setLoading(false);
     }
   };
+  //设置表格的列
+  const columns: ColumnsType<PageItem> = [
+    {
+      title: "名称",
+      dataIndex: "name",
+      width: 200
+    },
+    {
+      title: "用户",
+      dataIndex: "tUser",
+      width: 100,
+      render: (tUser)=><div>{tUser.account}</div>
+    },
+    {
+      title: "状态",
+      dataIndex: "ifShow",
+      align: "center",
+      width: 80,
+      render: (ifShow) => (
+        <ProTag color={ifShow === IfShowStatus.ENABLE ? "success" : "error"}>{IFSHOW_TAG[ifShow]}</ProTag>
+      )
+    },
+    {
+      title: "热门",
+      dataIndex: "ifHot",
+      align: "center",
+      width: 80,
+      render: (ifHot) => (
+        <ProTag color={ifHot === IfHotStatus.是 ? "success" : "error"}>{IfHotStatus[ifHot]}</ProTag>
+      )
+    },
+    { title: "电话", dataIndex: "mobile", align: "center", width: 100 },
+    { title: "地址", dataIndex: "addressInfo", align: "center", width: 200 },
+    {
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      align: 'center',
+      width: 200,
+      render: (createdAt) => (
+        dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss')
+      )
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updatedAt',
+      align: 'center',
+      width: 200,
+      render: (updatedAt) => (
+        dayjs(updatedAt).format('YYYY-MM-DD HH:mm:ss')
+      )
+    },
+    {
+      title: "操作",
+      key: "operation",
+      align: "center",
+      width: 100,
+      render: (_, record) => (
+        <div className="flex w-full justify-center text-gray">
+          <IconButton onClick={() => onEdit(record)}>
+            <Iconify icon="solar:pen-bold-duotone" size={18} />
+          </IconButton>
+        </div>
+      )
+    }
+  ];
 
   return (
     <Space direction="vertical" size="large" className="w-full">
@@ -228,12 +264,7 @@ export default function CompanyPage() {
           </Row>
         </Form>
       </Card>
-      <Card
-        title={PAGE_TITLE}
-        extra={<Button type="primary" onClick={onCreate}>
-          添加
-        </Button>}
-      >
+      <Card title={PAGE_TITLE}>
         <Table
           rowKey="id"
           size="small"
@@ -243,7 +274,7 @@ export default function CompanyPage() {
           pagination={pagePer.pagination}
           onChange={onChangePage}
         />
-
+        <CompanyModal {...modalProps}/>
       </Card>
     </Space>
   );

@@ -3,7 +3,7 @@ import { useState, useEffect} from 'react';
 
 import Card from '@/components/card';
 import { UploadAvatar } from '@/components/upload';
-import { ItemReq, PageList, SearchReq, usePage, useUpdate } from "@/api/services/configService";
+import { ItemReq, PageItem, SearchReq, usePage, useUpdate } from "@/api/services/configService";
 
 type FieldType = {
   sys_app_name: string;
@@ -17,7 +17,7 @@ type FieldType = {
 };
 export default function GeneralTab() {
   const [form] = Form.useForm();
-  const [configList, setConfigList] = useState<PageList[]>([]);
+  const [configList, setConfigList] = useState<PageItem[]>([]);
   const getConfigList = usePage();
   useEffect(() => {
     //加载数据
@@ -36,7 +36,7 @@ export default function GeneralTab() {
           // @ts-ignore
           const pageRes: PageRes = res;
           if (pageRes && Reflect.has(pageRes, 'list')) {
-            const cfgList: PageList[] = pageRes.list;
+            const cfgList: PageItem[] = pageRes.list;
             setConfigList(cfgList);
             cfgList.forEach((item) => {
               if (item.configValue !==''){

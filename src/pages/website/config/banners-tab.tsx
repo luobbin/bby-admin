@@ -3,7 +3,7 @@ import Table, { ColumnsType } from 'antd/es/table';
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 
-import { ItemReq, SearchReq, PageList, usePage, useAdd, useUpdate, useDel } from '@/api/services/configService';
+import { ItemReq, SearchReq, PageItem, usePage, useAdd, useUpdate, useDel } from '@/api/services/configService';
 import { IconButton, Iconify } from '@/components/icon';
 import { PageRes } from '#/entity';
 import { UploadAvatar } from '@/components/upload';
@@ -44,7 +44,7 @@ export default function BannersTab() {
   }
 
   // 设置表格的列
-  const columns: ColumnsType<PageList> = [
+  const columns: ColumnsType<PageItem> = [
     {
       title: '名称',
       dataIndex: 'configName',

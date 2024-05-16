@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import {
-  ItemReq,
+  SolutionReq as ItemReq,
   useAdd,
   useUpdate
 } from '@/api/services/solutionService';
@@ -17,7 +17,7 @@ import Editor from '@/components/editor';
 import { UploadAvatar } from '@/components/upload';
 
 const DEFAULE_VAL: ItemReq = {
-  id: '',
+  id: 0,
   name: '',
   ifShow: IfShowStatus.ENABLE,
   companyId: 0,
@@ -27,6 +27,7 @@ const DEFAULE_VAL: ItemReq = {
   demoAccountSet: '',
   demoCount: 0,
   contactCount: 0,
+  viewCount: 0,
   content: '',
   advantage: '',
   functionSet: '',

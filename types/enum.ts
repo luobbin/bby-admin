@@ -32,6 +32,14 @@ export enum IfDelStatus {
   是,
 }
 
+export enum ColorStatus {
+  default,
+  processing,
+  success,
+  warning,
+  error,
+}
+
 export enum IfServiceStatus {
   否,
   是,

@@ -27,7 +27,7 @@ export interface Config {
   remark: string;
 }
 
-export interface PageList extends Config {
+export interface PageItem extends Config {
   updateBy: number;
   createBy: number;
   createdAt: string;

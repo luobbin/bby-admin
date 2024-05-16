@@ -8,19 +8,19 @@ import { useCallback } from 'react';
 import { Result } from '#/api.ts';
 
 export interface SearchReq {
-  id: number;
+  id?: number;
   pageIndex: number;
   pageSize: number;
-  name: string;
-  idOrder: string;
-  ifDel: 0 | 1;
-  ifService: 0 | 1;
+  name?: string;
+  idOrder?: string;
+  ifDel?: 0 | 1;
+  ifService?: 0 | 1;
 }
 
 export interface Member {
-  id: string;
+  id: number;
   account: string;
-  password: string;
+  password: string|null;
   avatar: string;
   realName: string;
   mobile: string;
@@ -29,12 +29,13 @@ export interface Member {
   ifDel: 0 | 1;
 }
 
-export interface PageList extends Member {
+export interface PageItem extends Member {
   updateBy: number;
   createBy: number;
   deletedAt: string;
   createdAt: string;
   updatedAt: string;
+  addressInfo: string;
 }
 
 export type ItemReq = Member;

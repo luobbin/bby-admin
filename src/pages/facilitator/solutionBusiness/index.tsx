@@ -1,6 +1,7 @@
-import { Button, Card, Popconfirm, Form, Row, Input, Col, Select, Space } from 'antd';
+import { Button, Card, Form, Row, Input, Col, Select, Space } from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
 import { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 
 import { IconButton, Iconify } from '@/components/icon';
 import ProTag from '@/theme/antd/components/tag';
@@ -37,56 +38,6 @@ export default function SolutionBusinessPage() {
       setModalProps((prev) => ({ ...prev, show: false }));
     }
   });
-  //设置表格的列
-  const columns: ColumnsType<PageList> = [
-    {
-      title: "对接客户",
-      dataIndex: "tUser",
-      width: 300,
-      render: (tUser)=><div>{tUser.account}</div>
-    },
-    {
-      title: "对接服务商",
-      dataIndex: "tCompany",
-      width: 300,
-      render: (tCompany)=><div>{tCompany.name}</div>
-    },
-    {
-      title: "对接解决方案",
-      dataIndex: "tSolution",
-      width: 300,
-      render: (tSolution)=><div>{tSolution.name}</div>
-    },
-    {
-      title: "状态",
-      dataIndex: "status",
-      align: "center",
-      width: 120,
-      render: (status) => (
-        <ProTag color={status === BusinessStatus.待处理 ? "success" : "error"}>{BusinessStatus[status]}</ProTag>
-      )
-    },
-    { title: "创建时间", dataIndex: "createdAt", align: "center", width: 300 },
-    { title: "更新时间", dataIndex: "updatedAt", align: "center", width: 300 },
-    {
-      title: "操作",
-      key: "operation",
-      align: "center",
-      width: 100,
-      render: (_, record) => (
-        <div className="flex w-full justify-center text-gray">
-          <IconButton onClick={() => onEdit(record)}>
-            <Iconify icon="solar:pen-bold-duotone" size={18} />
-          </IconButton>
-          <Popconfirm title="抱歉，暂不支持删除" okText="是" cancelText="否" placement="left">
-            <IconButton>
-              <Iconify icon="mingcute:delete-2-fill" size={18} className="text-error" />
-            </IconButton>
-          </Popconfirm>
-        </div>
-      )
-    }
-  ];
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [pagePer, setPagePer] = useState({
@@ -125,7 +76,6 @@ export default function SolutionBusinessPage() {
         await getPage(searchForm.getFieldsValue()).then((res) => {
           // @ts-ignore
           const pageRes : PageRes = res;
-          console.log('初始化转换', pageRes.list);
           if (pageRes && Reflect.has(pageRes, "list")) {
             // @ts-ignore
             setData(pageRes.list);
@@ -136,7 +86,6 @@ export default function SolutionBusinessPage() {
                 total: pageRes.count, // 总数据量
               },
             });
-            console.log("获取到数据1", data);
           }
         });
       } finally {
@@ -156,7 +105,6 @@ export default function SolutionBusinessPage() {
     try {
       searchForm.setFieldsValue(DEFAULE_PAGE);
       const res = await getPage(searchForm.getFieldsValue());
-      console.log("异步到数据", res);
       // @ts-ignore
       const pageRes : PageRes = res;
       if (pageRes && Reflect.has(pageRes, "list")) {
@@ -169,21 +117,18 @@ export default function SolutionBusinessPage() {
             total: pageRes.count, // 总数据量
           },
         });
-        console.log("获取到数据2", data);
       }
     } finally {
       setLoading(false);
     }
   };
   // 切换分页
-  const onChangePage = async (paging:any, filters:any, sort:any) => {
+  const onChangePage = async (paging:any, _filters:any, _sort:any) => {
     setLoading(true);
     try {
       searchForm.setFieldValue('pageIndex', paging.current);
       searchForm.setFieldValue('pageSize', paging.pageSize);
-      console.log('分页请求参数', searchForm.getFieldsValue(), filters,sort);
       const res = await getPage(searchForm.getFieldsValue());
-      console.log('分页到数据', res);
       // @ts-ignore
       const pageRes : PageRes = res;
       if (pageRes && Reflect.has(pageRes, "list")) {
@@ -196,14 +141,73 @@ export default function SolutionBusinessPage() {
             total: pageRes.count, // 总数据量
           },
         });
-        console.log("获取到数据3", data);
       }
     } finally {
       setLoading(false);
     }
   };
 
-
+//设置表格的列
+  const columns: ColumnsType<PageList> = [
+    {
+      title: "对接客户",
+      dataIndex: "tUser",
+      width: 100,
+      render: (tUser)=><div>{tUser.account}</div>
+    },
+    {
+      title: "对接服务商",
+      dataIndex: "tCompany",
+      width: 150,
+      render: (tCompany)=><div>{tCompany.name}</div>
+    },
+    {
+      title: "对接解决方案",
+      dataIndex: "tSolution",
+      width: 200,
+      render: (tSolution)=><div>{tSolution.name}</div>
+    },
+    {
+      title: "状态",
+      dataIndex: "status",
+      align: "center",
+      width: 100,
+      render: (status) => (
+        <ProTag color={status === BusinessStatus.待处理 ? "success" : "error"}>{BusinessStatus[status]}</ProTag>
+      )
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      align: 'center',
+      width: 200,
+      render: (createdAt) => (
+        dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss')
+      )
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updatedAt',
+      align: 'center',
+      width: 200,
+      render: (updatedAt) => (
+        dayjs(updatedAt).format('YYYY-MM-DD HH:mm:ss')
+      )
+    },
+    {
+      title: "操作",
+      key: "operation",
+      align: "center",
+      width: 100,
+      render: (_, record) => (
+        <div className="flex w-full justify-center text-gray">
+          <IconButton onClick={() => onEdit(record)}>
+            <Iconify icon="solar:pen-bold-duotone" size={18} />
+          </IconButton>
+        </div>
+      )
+    }
+  ];
 
   return (
     <Space direction="vertical" size="large" className="w-full">

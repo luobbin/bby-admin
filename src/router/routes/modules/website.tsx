@@ -8,6 +8,7 @@ import { AppRouteObject } from '#/router';
 
 const ConfigPage = lazy(() => import('@/pages/website/config'));
 const BannerPage = lazy(() => import('@/pages/website/banner'));
+const RecommendPage = lazy(() => import('@/pages/website/recommend'));
 const ArticlePage = lazy(() => import('@/pages/website/article'));
 const ArticleEditPage = lazy(() => import('@/pages/website/article/articleEdit'));
 
@@ -38,6 +39,11 @@ const website: AppRouteObject = {
       path: 'banner',
       element: <BannerPage />,
       meta: { label: 'sys.menu.banner', key: '/website/banner' },
+    },
+    {
+      path: 'recommend',
+      element: <RecommendPage />,
+      meta: { label: 'sys.menu.recommend', key: '/website/recommend' },
     },
     {
       path: 'article',

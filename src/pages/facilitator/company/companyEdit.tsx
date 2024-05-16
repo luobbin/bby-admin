@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 
-import { ItemReq, useAdd, useUpdate } from '@/api/services/companyService';
+import { CompanyReq as ItemReq, useAdd, useUpdate } from '@/api/services/companyService';
 import { IfDelStatus, IfHotStatus, IfServiceStatus, IfShowStatus } from "#/enum";
 import Editor from '@/components/editor';
 import { UploadAvatar, UploadBizFile } from '@/components/upload';
@@ -11,11 +11,10 @@ import { PageRes } from '#/entity';
 
 import { usePage as useMemberPage, SearchReq as SearchMember} from '@/api/services/memberService';
 import { useList as useRegionPage, SearchReq as SearchRegion, } from '@/api/services/regionService';
-import { useList as useIndustryPage, SearchReq as SearchIndustry} from '@/api/services/industryService';
 import { useList as useSupportPage, SearchReq as SearchSupport} from '@/api/services/supportService';
 
 const DEFAULE_VAL: ItemReq = {
-  id: '',
+  id: 0,
   userId: 0,
   name: '',
   ifShow: IfShowStatus.ENABLE,
@@ -29,9 +28,10 @@ const DEFAULE_VAL: ItemReq = {
   contactSet: '',
   ifHot: 0,
   sort: 0,
+  customerCount:0,
+  solutionCount:0,
   supportIds: [],
   regionIds: [],
-  industryIds: [],
 };
 
 export default function CompanyEditPage() {
@@ -48,8 +48,6 @@ export default function CompanyEditPage() {
   const getMemberList = useMemberPage();
   const [regionList, setRegionList] = useState([]);
   const getRegionList = useRegionPage();
-  const [industryList, setIndustryList] = useState([]);
-  const getIndustryList = useIndustryPage();
   const [supportList, setSupportList] = useState([]);
   const getSupportList = useSupportPage();
   const [ifUpFile, setIfUpFile] = useState(false);
@@ -91,22 +89,6 @@ export default function CompanyEditPage() {
             memberRes.list.push({ id: 0, account: '未选择', });
             // @ts-ignore
             setMemberList(memberRes.list);
-          }
-        });
-        // @ts-ignore
-        const industryReq: SearchIndustry = {
-          pageIndex: 1,
-          pageSize: 10,
-        };
-        await getIndustryList(industryReq).then((res) => {
-          // console.log('获取行业数据', res);
-          // @ts-ignore
-          const industryRes: Industry[] = res;
-          if (industryRes) {
-            // @ts-ignore
-            industryRes.push({ id: 0, name: '未选择',});
-            // @ts-ignore
-            setIndustryList(industryRes);
           }
         });
         // @ts-ignore
@@ -246,23 +228,6 @@ export default function CompanyEditPage() {
         </Form.Item>
         <Form.Item<ItemReq> label="所属用户" name="userId" required >
           {renderUserSelect}
-        </Form.Item>
-        <Form.Item<ItemReq> label="所属行业" name="industryIds" required>
-          <TreeSelect
-            multiple
-            showSearch
-            allowClear
-            treeDefaultExpandAll
-            style={{ width: '100%' }}
-            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-            placeholder="请选择"
-            fieldNames={{
-              label: 'name',
-              value: 'id',
-              children: 'children',
-            }}
-            treeData={industryList}
-          />
         </Form.Item>
         <Form.Item<ItemReq> label="所属地区" name="regionIds" required>
           <TreeSelect

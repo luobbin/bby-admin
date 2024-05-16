@@ -116,6 +116,41 @@ export const useCaptcha = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 };
+
+/**
+ * User permission mock
+ */
+const DASHBOARD_PERMISSION = {
+  id: '1',
+  parentId: '',
+  label: 'sys.menu.dashboard',
+  name: 'Dashboard',
+  icon: 'ic-analysis',
+  type: PermissionType.CATALOGUE,
+  route: 'dashboard',
+  order: 1,
+  children: [
+    {
+      id: '8426999229400979',
+      parentId: '1',
+      label: 'sys.menu.workbench',
+      name: 'Workbench',
+      type: PermissionType.MENU,
+      route: 'workbench',
+      component: '/dashboard/workbench/index.tsx',
+    },
+    // {
+    //   id: '9710971640510357',
+    //   parentId: '1',
+    //   label: 'sys.menu.analysis',
+    //   name: 'Analysis',
+    //   type: PermissionType.MENU,
+    //   route: 'analysis',
+    //   component: '/dashboard/analysis/index.tsx',
+    // },
+  ],
+};
+
 /**
  * User permission BackGround Website
  */
@@ -150,6 +185,15 @@ const WEBSITE_PERMISSION = {
     {
       id: '23',
       parentId: '2',
+      label: 'sys.menu.recommend',
+      name: 'Recommend',
+      type: PermissionType.MENU,
+      route: 'recommend',
+      component: '/website/recommend/index.tsx',
+    },
+    {
+      id: '24',
+      parentId: '2',
       label: 'sys.menu.article',
       name: 'Article',
       type: PermissionType.MENU,
@@ -157,7 +201,7 @@ const WEBSITE_PERMISSION = {
       component: '/website/article/index.tsx',
     },
     {
-      id: '24',
+      id: '25',
       parentId: '2',
       label: 'sys.menu.articleEdit',
       name: 'ArticleEdit',
@@ -352,15 +396,15 @@ const CATEGORIZE_PERMISSION = {
       route: 'region',
       component: '/categorize/region/index.tsx',
     },
-    {
-      id: '93',
-      parentId: '9',
-      label: 'sys.menu.industry',
-      name: 'Industry',
-      type: PermissionType.MENU,
-      route: 'industry',
-      component: '/categorize/industry/index.tsx',
-    },
+    // {
+    //   id: '93',
+    //   parentId: '9',
+    //   label: 'sys.menu.industry',
+    //   name: 'Industry',
+    //   type: PermissionType.MENU,
+    //   route: 'industry',
+    //   component: '/categorize/industry/index.tsx',
+    // },
     {
       id: '94',
       parentId: '9',
@@ -373,39 +417,7 @@ const CATEGORIZE_PERMISSION = {
   ],
 };
 
-/**
- * User permission mock
- */
-const DASHBOARD_PERMISSION = {
-  id: '9100714781927703',
-  parentId: '',
-  label: 'sys.menu.dashboard',
-  name: 'Dashboard',
-  icon: 'ic-analysis',
-  type: PermissionType.CATALOGUE,
-  route: 'dashboard',
-  order: 91,
-  children: [
-    {
-      id: '8426999229400979',
-      parentId: '9100714781927703',
-      label: 'sys.menu.workbench',
-      name: 'Workbench',
-      type: PermissionType.MENU,
-      route: 'workbench',
-      component: '/dashboard/workbench/index.tsx',
-    },
-    {
-      id: '9710971640510357',
-      parentId: '9100714781927703',
-      label: 'sys.menu.analysis',
-      name: 'Analysis',
-      type: PermissionType.MENU,
-      route: 'analysis',
-      component: '/dashboard/analysis/index.tsx',
-    },
-  ],
-};
+
 /* const MANAGEMENT_PERMISSION = {
   id: '0901673425580518',
   parentId: '',

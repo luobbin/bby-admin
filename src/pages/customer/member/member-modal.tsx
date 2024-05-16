@@ -1,6 +1,6 @@
 import { Form, Modal, Input, Radio, Button, App } from 'antd';
 import { useEffect, useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import { IfDelStatus, IfServiceStatus } from '#/enum';
 import { ItemReq, useAdd, useUpdate } from '@/api/services/memberService';
 import { UploadAvatar } from '@/components/upload';
@@ -12,10 +12,10 @@ export type ItemModalProps = {
   onOk: VoidFunction;
   onCancel: VoidFunction;
 };
-// @ts-ignore
 const DEFAULE_VAL: ItemReq = {
-  id: '',
+  id: 0,
   account: '',
+  password: null,
   avatar: '',
   mobile: '',
   realName: '',
@@ -26,6 +26,7 @@ const DEFAULE_VAL: ItemReq = {
 
 export function MemberModal({ title, show, formValue, onOk, onCancel }: ItemModalProps) {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
   const [defaultImg, setDefaultImg] = useState('');
   useEffect(() => {
     form.setFieldsValue({ ...formValue });
@@ -40,12 +41,11 @@ export function MemberModal({ title, show, formValue, onOk, onCancel }: ItemModa
     // @ts-ignore
     const item: ItemReq = form.getFieldsValue();
     let res;
-    if (form.getFieldValue('id') === '') {
+    if (item.id === 0) {
       res = await add(item);
     } else {
       res = await update(item);
     }
-    console.log('获取到的res',res)
     if (res){
       form.setFieldsValue(DEFAULE_VAL);// 提交到服务端
       notification.success({
@@ -54,6 +54,7 @@ export function MemberModal({ title, show, formValue, onOk, onCancel }: ItemModa
         duration: 3,
       });
       onOk();
+      navigate('/customer/member')
     }
   };
 
@@ -112,9 +113,9 @@ export function MemberModal({ title, show, formValue, onOk, onCancel }: ItemModa
         <Form.Item<ItemReq> label="头像" name="avatar">
           <UploadAvatar helperText="" defaultAvatar={defaultImg} onChange={setAvatar}/>
         </Form.Item>
-        <Form.Item<ItemReq> label="地址" name="address">
+        {/* <Form.Item<ItemReq> label="地址" name="address">
           <Input />
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item<ItemReq> label="是否删除" name="ifDel" required>
           <Radio.Group optionType="button" buttonStyle="solid">

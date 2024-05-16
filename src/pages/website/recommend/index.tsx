@@ -1,6 +1,7 @@
 import { App, Button, Card, Popconfirm, Modal, Form, Input, Space, Image} from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
-import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useState, useEffect} from 'react';
 import dayjs from 'dayjs';
 
 import {
@@ -17,15 +18,16 @@ import { IconButton, Iconify } from '@/components/icon';
 import { PageRes } from '#/entity';
 import { UploadAvatar } from '@/components/upload';
 
-const PAGE_TITLE = 'banner列表';
+const PAGE_TITLE = '小广告列表';
 const DEFAULT_IMG = import.meta.env.VITE_DEFAULT_IMG as string;
+
 const DEFAULE_VAL: ItemReq = {
   id: 0,
   configName: '',
   configKey: '',
   configValue: '',
   configUrl: '',
-  isFrontend: '2',
+  isFrontend: '3',
   remark: '',
 };
 
@@ -47,22 +49,71 @@ export default function BannerPage() {
   });
 
   const del = useDel();
-  const confirmDel = async (param: ItemReq) => {
-    console.log(param);
+  const confirmDel = async (id: number) => {
     const params: ItemDelReq = {
-      ids: [param.id]
+      ids: [id]
     }
     const res = await del(params);
     if (res){
-      const newData = data.filter(item => item.id !== param.id);
+      const newData = data.filter(item => item.id !== id);
       // 更新数据源
       setData(newData);
       message.success("删除成功！")
     }
   }
 
+  const onCreate = () => {
+    setModalProps((prev) => ({
+      ...prev,
+      show: true,
+      title: '创建',
+      formValue: {
+        ...prev.formValue,
+        ...DEFAULE_VAL,
+      },
+    }));
+  };
+  const onEdit = (formValue: ItemReq) => {
+    // @ts-ignore
+    formValue.password = null;
+    setModalProps((prev) => ({
+      ...prev,
+      show: true,
+      title: '更新',
+      formValue,
+    }));
+  };
+  const getPage = usePage();
+  useEffect(() => {
+    handlePage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const handlePage = async () => {
+    try {
+      // @ts-ignore
+      const searchParam: SearchReq = {
+        pageIndex: 1,
+        pageSize: 100,
+        isFrontend: "3",
+      }
+      await getPage(searchParam).then((res) => {
+        // @ts-ignore
+        const pageRes: PageRes<PageItem> = res;
+        if (pageRes && pageRes.list) {
+          setData(pageRes.list);
+        }
+      });
+    } finally {
+      console.log('页面加载完成');
+    }
+  };
   // 设置表格的列
   const columns: ColumnsType<PageItem> = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      width: 50,
+    },
     {
       title: '名称',
       dataIndex: 'configName',
@@ -72,7 +123,7 @@ export default function BannerPage() {
       title: '图片',
       dataIndex: 'configValue',
       align: 'center',
-      width: 200,
+      width: 150,
       render:(configValue) =>(
         <Image height={80}
                src={configValue}
@@ -111,7 +162,7 @@ export default function BannerPage() {
           <IconButton onClick={() => onEdit(record)}>
             <Iconify icon="solar:pen-bold-duotone" size={18} />
           </IconButton>
-          <Popconfirm title="确定要删除" okText="是" cancelText="否" placement="left" onConfirm={() => confirmDel(record)}>
+          <Popconfirm title="确定要删除" okText="是" cancelText="否" placement="left" onConfirm={() => confirmDel(record.id)}>
             <IconButton>
               <Iconify icon="mingcute:delete-2-fill" size={18} className="text-error" />
             </IconButton>
@@ -121,55 +172,6 @@ export default function BannerPage() {
     },
   ];
 
-  const onCreate = () => {
-    setModalProps((prev) => ({
-      ...prev,
-      show: true,
-      title: '创建',
-      formValue: {
-        ...prev.formValue,
-        ...DEFAULE_VAL,
-      },
-    }));
-  };
-  const onEdit = (formValue: ItemReq) => {
-    // @ts-ignore
-    formValue.password = null;
-    setModalProps((prev) => ({
-      ...prev,
-      show: true,
-      title: '更新',
-      formValue,
-    }));
-  };
-
-  const getPage = usePage();
-  useEffect(() => {
-    const handlePage = async () => {
-      try {
-        // @ts-ignore
-        const searchParam: SearchReq = {
-          pageIndex: 1,
-          pageSize: 100,
-          isFrontend: "2",
-        }
-        await getPage(searchParam).then((res) => {
-          // @ts-ignore
-          const pageRes: PageRes = res;
-          if (pageRes && Reflect.has(pageRes, 'list')) {
-            // @ts-ignore
-            setData(pageRes.list);
-            console.log('获取到数据1', data);
-          }
-        });
-      } finally {
-        console.log('页面加载完成');
-      }
-    };
-    handlePage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  console.log("执行表格")
   return (
     <Space direction="vertical" size="large" className="w-full">
       <Card
@@ -188,7 +190,7 @@ export default function BannerPage() {
           dataSource={data}
           pagination={false}
         />
-        <BannerModal {...modalProps} />
+        <RecomModal {...modalProps} />
       </Card>
     </Space>
   );
@@ -203,27 +205,26 @@ export type ItemModalProps = {
 };
 
 
-export function BannerModal({ title, show, formValue, onOk, onCancel }: ItemModalProps) {
+export function RecomModal({ title, show, formValue, onOk, onCancel }: ItemModalProps) {
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const [defaultImg, setDefaultImg] = useState('');
   useEffect(() => {
     form.setFieldsValue({ ...formValue });
     setDefaultImg(form.getFieldValue('configValue'));
-    console.log('更新的数据', form.getFieldValue('configValue'));
-  }, [formValue, form]);
+  }, [formValue]);
 
   // 处理新增|更新
   const add = useAdd();
   const update = useUpdate();
   const { notification } = App.useApp();
   const handleFinish = async () => {
-    // @ts-ignore
     const item: ItemReq = form.getFieldsValue();
     console.log('获取到提交数据', item);
     try {
       let res;
-      if (form.getFieldValue('id') === 0) {
-        item.configKey = 'sys_app_banner_' + dayjs().millisecond();
+      if (!item.id) {
+        item.configKey = 'sys_app_ad_' + dayjs().millisecond();
         res = await add(item);
       } else {
         res = await update(item);
@@ -239,12 +240,12 @@ export function BannerModal({ title, show, formValue, onOk, onCancel }: ItemModa
       });
       // 提交到服务端
       onOk();
+      navigate('/website/recommend')
     }
   };
 
-  function setBannerImg(newImg: string): void {
-    formValue.configValue = newImg;
-    console.log("获取到新图片：", formValue.configValue);
+  function setImg(newImg: string): void {
+    form.setFieldValue('configValue',newImg)
   }
 
   return (
@@ -284,13 +285,13 @@ export function BannerModal({ title, show, formValue, onOk, onCancel }: ItemModa
           name="configName"
           rules={[{ required: true, message: '请输入Banner名称' }]}
         >
-          <Input placeholder="Banner名称" />
+          <Input placeholder="请输入名称" />
         </Form.Item>
         <Form.Item<ItemReq> label="图片" name="configValue">
-          <UploadAvatar defaultAvatar={defaultImg} onChange={setBannerImg} />
+          <UploadAvatar defaultAvatar={defaultImg} onChange={setImg} />
         </Form.Item>
         <Form.Item<ItemReq> label="链接" name="configUrl">
-          <Input placeholder="请输入Banner跳转链接"/>
+          <Input placeholder="请输入跳转链接"/>
         </Form.Item>
         <Form.Item<ItemReq> label="备注" name="remark">
           <Input.TextArea />

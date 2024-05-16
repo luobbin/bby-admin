@@ -4,7 +4,6 @@ import { useMutation } from '@tanstack/react-query';
 import { PageRes } from '#/entity';
 import { App } from 'antd';
 import { useCallback } from 'react';
-// eslint-disable-next-line import/extensions
 import { Result } from '#/api.ts';
 
 export interface SearchReq {
@@ -16,13 +15,13 @@ export interface SearchReq {
 }
 
 export interface Article {
-  id: string;
+  id: number;
   title: string;
   info: string;
   content: string;
 }
 
-export interface PageList extends Article {
+export interface PageItem extends Article {
   updateBy: number;
   createBy: number;
   deletedAt: string;
@@ -34,6 +33,10 @@ export type ItemReq = Article;
 
 export type NewItem = Omit<ItemReq, 'id'>;
 
+export interface ItemDelReq{
+  ids: number[];
+}
+
 export enum BaseApi {
   Uri = '/v1/t-article',
 }
@@ -43,6 +46,8 @@ const itemList = (params: SearchReq) =>
 const itemAdd = (params: NewItem) => apiClient.postString<Result>({ url: BaseApi.Uri, params });
 const itemUpdate = (params: ItemReq) =>
   apiClient.putString<Result>({ url: `${BaseApi.Uri}/${params.id}`, params });
+
+const itemdel = (params: ItemDelReq) => apiClient.deleteString<Result>({ url: BaseApi.Uri, params });
 
 export const usePage = () => {
   const { message } = App.useApp();
@@ -104,8 +109,27 @@ export const useUpdate = () => {
   }, []);
 };
 
+export const useDel = () => {
+  const { message } = App.useApp();
+  const mutation = useMutation(itemdel);
+  // eslint-disable-next-line consistent-return
+  return useCallback(async (param: ItemDelReq) => {
+    try {
+      const res = await mutation.mutateAsync(param);
+      return res;
+    } catch (err) {
+      message.warning({
+        content: err.message,
+        duration: 3,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+};
+
 export default {
   usePage,
   useAdd,
   useUpdate,
+  useDel,
 };

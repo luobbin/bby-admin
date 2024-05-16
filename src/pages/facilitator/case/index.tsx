@@ -1,45 +1,123 @@
-import { Button, Card, Popconfirm, Form, Row, Input, Col, Select, Space } from 'antd';
+import { Button, Card, Popconfirm, Form, Row, Input, Col, Select, Space, message } from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
 import { useState, useEffect } from 'react';
-
+import dayjs from 'dayjs';
 import { IconButton, Iconify } from '@/components/icon';
 import ProTag from '@/theme/antd/components/tag';
 
-import { SearchReq, usePage, ItemReq, PageList } from '@/api/services/caseService';
-
-import { PageRes } from '#/entity';
-import { IfDelStatus } from "#/enum.ts";
-import { useNavigate } from 'react-router-dom';
-
+import { PageRes, Scene } from '#/entity';
+import { SearchReq, usePage, PageItem,ItemDelReq, useDel } from '@/api/services/caseService';
 type SearchFormFieldType = keyof SearchReq;
 const PAGE_TITLE = '案例 列表';
-const DEFAULE_PAGE : { pageIndex: number; pageSize: number } = { pageIndex:1, pageSize:10, };
+const DEFAULE_PAGE : SearchReq= { pageIndex:1, pageSize:10, idOrder:'desc' };
 
 export default function SupportPage() {
   const [searchForm] = Form.useForm();
+  const getPage = usePage();
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<PageItem[]>([]);
+  const [pagePer, setPagePer] = useState({
+    pagination: {
+      current: DEFAULE_PAGE.pageIndex,
+      pageSize: DEFAULE_PAGE.pageSize, // 每页显示N条数据
+      total: 0, // 总数据量
+    },
+  });
+  const del = useDel();
+  const confirmDel = async (id: number) => {
+    const params: ItemDelReq = {
+      ids: [id]
+    }
+    const res = await del(params);
+    if (res){
+      const newData = data.filter(item => item.id !== id);
+      // 更新数据源
+      setData(newData);
+      message.success("删除成功！")
+    }
+  }
+
+  useEffect(() => {
+    searchForm.setFieldsValue({...DEFAULE_PAGE})
+    handlePage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const onSearchReset = () => {
+    searchForm.resetFields();
+    searchForm.setFieldsValue(DEFAULE_PAGE);
+    handlePage();
+  };
+
+  const onSearchPage = async () => {
+    handlePage();
+  };
+  // 切换分页
+  const onChangePage = async (paging:any, _filters:any, _sort:any) => {
+    searchForm.setFieldValue('pageIndex', paging.current);
+    searchForm.setFieldValue('pageSize', paging.pageSize);
+    handlePage();
+  };
+
+  const handlePage = async () => {
+    setLoading(true);
+    try {
+      await getPage(searchForm.getFieldsValue()).then((res) => {
+        // @ts-ignore
+        const pageRes : PageRes<PageItem> = res;
+        if (pageRes && pageRes.list) {
+          setData(pageRes.list);
+          setPagePer({
+            pagination: {
+              current: pageRes.pageIndex,
+              pageSize: pageRes.pageSize, // 每页显示N条数据
+              total: pageRes.count, // 总数据量
+            },
+          });
+          console.log("获取到数据1", data);
+        }
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   //设置表格的列
-  const columns: ColumnsType<PageList> = [
+  const columns: ColumnsType<PageItem> = [
     {
       title: "名称",
       dataIndex: "name",
-      width: 300
+      width: 100
     },
     {
-      title: "名称",
+      title: "简介",
+      dataIndex: "info",
+      width: 300,
+      render: (info) => <div className="line-clamp-3">{info}</div>,
+    },
+    {
+      title: "客户企业名称",
       dataIndex: "customerName",
+      width: 200
+    },
+    {
+      title: "客户企业地址",
+      dataIndex: "customerAddressInfo",
       width: 120
     },
     {
-      title: "所属服务商",
-      dataIndex: "tCompany",
-      width: 200,
-      render: (tCompany) => <div>{tCompany.name}</div>,
+      title: "客户负责人",
+      dataIndex: "customerLeader",
+      width: 100
     },
     {
-      title: "所属行业",
-      dataIndex: "tIndustry",
-      width: 100,
-      render: (tIndustry) => <div>{tIndustry.name}</div>,
+      title: "所属场景",
+      dataIndex: "tScene",
+      width: 200,
+      render: (tScene) => <div>
+        {tScene?.map((val:Scene) =>(
+          <ProTag color="success" key={val.id}>{val.name}</ProTag>
+        ))}
+      </div>,
     },
     {
       title: "所属地区",
@@ -48,26 +126,26 @@ export default function SupportPage() {
       render: (tRegion) => <div>{tRegion.name}</div>,
     },
     {
-      title: "状态",
-      dataIndex: "ifDel",
-      align: "center",
-      width: 120,
-      render: (ifDel) => (
-        <ProTag color={ifDel === 0 ? "success" : "error"}>{IfDelStatus[ifDel]}</ProTag>
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      align: 'center',
+      width: 200,
+      render: (createdAt) => (
+        dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss')
       )
     },
-    { title: "创建时间", dataIndex: "createdAt", align: "center", width: 300 },
     {
       title: "操作",
       key: "operation",
       align: "center",
-      width: 100,
+      width: 120,
       render: (_, record) => (
         <div className="flex w-full justify-center text-gray">
-          <IconButton onClick={() => onEdit(record)}>
-            <Iconify icon="solar:pen-bold-duotone" size={18} />
-          </IconButton>
-          <Popconfirm title="抱歉，暂不支持删除" okText="是" cancelText="否" placement="left">
+          <a href={`/case/detail?id=${record.id}`} target={"_blank"}>
+            <IconButton><Iconify icon="hugeicons:view" size={18} /></IconButton>
+          </a>
+          <Popconfirm title="确定要删除" okText="是" cancelText="否" placement="left"
+                      onConfirm={() => confirmDel(record.id)}>
             <IconButton>
               <Iconify icon="mingcute:delete-2-fill" size={18} className="text-error" />
             </IconButton>
@@ -76,111 +154,6 @@ export default function SupportPage() {
       )
     }
   ];
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
-  const [pagePer, setPagePer] = useState({
-    pagination: {
-      current: DEFAULE_PAGE.pageIndex,
-      pageSize: DEFAULE_PAGE.pageSize, // 每页显示N条数据
-      total: 0, // 总数据量
-    },
-  });
-  const navigate = useNavigate();
-  const onCreate = () => {
-    navigate('/facilitator/caseEdit', { state: { title: '创建', params: '' } });
-  };
-  const onEdit = (formValue: ItemReq) => {
-    navigate('/facilitator/caseEdit', { state: { title: '更新', params: formValue } });
-  };
-
-  const getPage = usePage();
-  useEffect(() => {
-    const handlePage = async () => {
-      setLoading(true);
-      try {
-        searchForm.setFieldsValue(DEFAULE_PAGE);
-        await getPage(searchForm.getFieldsValue()).then((res) => {
-          // @ts-ignore
-          const pageRes : PageRes = res;
-          console.log('初始化转换', pageRes.list);
-          if (pageRes && Reflect.has(pageRes, "list")) {
-            // @ts-ignore
-            setData(pageRes.list);
-            setPagePer({
-              pagination: {
-                current: pageRes.pageIndex,
-                pageSize: pageRes.pageSize, // 每页显示N条数据
-                total: pageRes.count, // 总数据量
-              },
-            });
-            console.log("获取到数据1", data);
-          }
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    handlePage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const onSearchReset = () => {
-    searchForm.resetFields();
-    searchForm.setFieldsValue(DEFAULE_PAGE);
-  };
-
-  const onSearchPage = async () => {
-    setLoading(true);
-    try {
-      searchForm.setFieldsValue(DEFAULE_PAGE);
-      const res = await getPage(searchForm.getFieldsValue());
-      console.log("异步到数据", res);
-      // @ts-ignore
-      const pageRes : PageRes = res;
-      if (pageRes && Reflect.has(pageRes, "list")) {
-        // @ts-ignore
-        setData(pageRes.list);
-        setPagePer({
-          pagination: {
-            current: pageRes.pageIndex,
-            pageSize: pageRes.pageSize, // 每页显示N条数据
-            total: pageRes.count, // 总数据量
-          },
-        });
-        console.log("获取到数据2", data);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-  // 切换分页
-  const onChangePage = async (paging:any, filters:any, sort:any) => {
-    setLoading(true);
-    try {
-      searchForm.setFieldValue('pageIndex', paging.current);
-      searchForm.setFieldValue('pageSize', paging.pageSize);
-      console.log('分页请求参数', searchForm.getFieldsValue(), filters,sort);
-      const res = await getPage(searchForm.getFieldsValue());
-      console.log('分页到数据', res);
-      // @ts-ignore
-      const pageRes : PageRes = res;
-      if (pageRes && Reflect.has(pageRes, "list")) {
-        // @ts-ignore
-        setData(pageRes.list);
-        setPagePer({
-          pagination: {
-            current: pageRes.pageIndex,
-            pageSize: pageRes.pageSize, // 每页显示N条数据
-            total: pageRes.count, // 总数据量
-          },
-        });
-        console.log("获取到数据3", data);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
 
   return (
     <Space direction="vertical" size="large" className="w-full">
@@ -224,12 +197,7 @@ export default function SupportPage() {
           </Row>
         </Form>
       </Card>
-      <Card
-        title={PAGE_TITLE}
-        extra={<Button type="primary" onClick={onCreate}>
-          添加
-        </Button>}
-      >
+      <Card title={PAGE_TITLE} >
         <Table
           rowKey="id"
           size="small"
@@ -239,7 +207,6 @@ export default function SupportPage() {
           pagination={pagePer.pagination}
           onChange={onChangePage}
         />
-
       </Card>
     </Space>
   );
