@@ -12,7 +12,6 @@ interface Props extends ReactQuillProps {
   sample?: boolean;
   onChange: (newValue: string) => void // 通过参数传给父组件的值
 }
-
 export default function Editor({ id = 'slash-quill', sample = false, ...other }: Props) {
   const token = useThemeToken();
   const { themeMode } = useSettings();

@@ -36,7 +36,7 @@ const DEFAULE_VAL: ItemReq = {
   companyId: 0,
   budget: 0,
   beginTime: dayjs().format(dateFormat),
-  endTime: dayjs().format(dateFormat),
+  endTime: '',
   inviteCount: 0,
   info: '',
   content: '',
@@ -49,6 +49,7 @@ const DEFAULE_VAL: ItemReq = {
 
 export default function DemandEditPage() {
   const [form] = Form.useForm();
+
   // 查询所有分类: 用户，地区，行业，解决方案
   const [memberList, setMemberList] = useState<Member[]>([]);
   const getMemberList = useMemberPage();
@@ -64,25 +65,25 @@ export default function DemandEditPage() {
   const [content, setContent] = useState('');
   const [qualification, setQualification] = useState('');
   const [othersList, setOthersList] = useState<object[]>([]);
-  const [endTime, setEndTime] = useState('');
-  const [ifUpFile, setIfUpFile] = useState(false);
-  const [companyId, setCompanyId] = useState(0);
+  const [endTime, setEndTime] = useState<dayjs.Dayjs|undefined>(undefined);
+  const [ifLoad, setIfLoad] = useState(false);
+
   useEffect(() => {
     if (currentLocation.state){
       const { title, params } = currentLocation.state;
-      form.setFieldsValue(title === '创建'? DEFAULE_VAL : params);
+      const item = title === '创建'? DEFAULE_VAL : params
+      console.log("初始化数据", item);
+      form.setFieldsValue(item);
       setSubmitTitle(title);
-      console.log("初始化数据", form.getFieldsValue());
-      setContent(form.getFieldValue('content'));
-      setQualification(form.getFieldValue('qualification'));
-      setEndTime(form.getFieldValue('endTime'));
-      if (form.getFieldValue('otherSet') !== ''){
-        setOthersList(JSON.parse(form.getFieldValue('otherSet')));
+      setContent(item.content);
+      setQualification(item.qualification);
+      if (item.endTime !==''){
+        setEndTime(dayjs(item.endTime));
       }
-      if (form.getFieldValue('companyId') > 0){
-        setCompanyId(form.getFieldValue('companyId'))
+      if (item.otherSet !== ''){
+        setOthersList(JSON.parse(item.otherSet));
       }
-      setIfUpFile(true);
+      setIfLoad(true);
     }
     //加载类目
     const handleList = async () => {
@@ -105,7 +106,7 @@ export default function DemandEditPage() {
         const companyReq: SearchCompany = {
           pageIndex: 1,
           pageSize: 10,
-          Id: companyId,
+          Id: form.getFieldValue('companyId'),
         };
         await getCompanyList(companyReq).then((res) => {
           // @ts-ignore
@@ -154,11 +155,18 @@ export default function DemandEditPage() {
 
   //处理时间
   const onPickEndTime: DatePickerProps['onChange'] = (_date, dateString) => {
-    if (dateString) {
-      setEndTime(dateString);
-    }
+    // console.log('获取到结束日期',dateString);
+    form.setFieldValue('endTime',dateString)
   };
-  function updateOthers(values: object[]) {
+  const onContent = (val:string) => {
+    // console.log('获取到content',val);
+    form.setFieldValue('content',val);
+  }
+  const onQualification = (val:string) => {
+    // console.log('获取到qualification',val);
+    form.setFieldValue('qualification',val);
+  }
+  function onOtherSet(values: object[]) {
     form.setFieldValue('otherSet', JSON.stringify(values));
   }
 
@@ -170,8 +178,8 @@ export default function DemandEditPage() {
   const handleFinish = async () => {
     setLoading(true);
     const item: ItemReq = form.getFieldsValue();
-    item.endTime = endTime;
-    console.log('转换数据为', item);
+    // console.log('转换数据为', item);
+    // return
     try {
 
       let res;
@@ -183,7 +191,13 @@ export default function DemandEditPage() {
         console.log('修改的数据结果为', res);
       }
       if (res){
-        form.setFieldsValue(DEFAULE_VAL);
+        if (submitTitle === '创建'){
+          form.setFieldsValue(DEFAULE_VAL);
+          setContent('');
+          setQualification('');
+          setEndTime(undefined);
+          setOthersList([]);
+        }
         notification.success({
           message: "成功",
           description: "提交成功",
@@ -205,22 +219,26 @@ export default function DemandEditPage() {
         layout="horizontal"
         onFinish={handleFinish}
       >
-        <Form.Item<ItemReq> label="ID" name="id" hidden>
+        <Form.Item<ItemReq> label="ID" name="id" hidden/>
+        <Form.Item<ItemReq> label="结束时间" name="endTime" hidden/>
+        <Form.Item<ItemReq> label="项目内容" name="content" hidden/>
+        <Form.Item<ItemReq> label="项目资质" name="qualification" hidden/>
+        <Form.Item<ItemReq> label="其他附件"  name="otherSet" hidden/>
+        <Form.Item<ItemReq> label="项目名称" name="name" rules={[{required: true, message: '项目名称不能为空',}]} required>
           <Input />
         </Form.Item>
-        <Form.Item<ItemReq> label="项目名称" name="name" required>
-          <Input />
-        </Form.Item>
-        <Form.Item<ItemReq> label="项目简介" name="info">
+        <Form.Item<ItemReq> label="项目简介" name="info" rules={[
+          {required: true, message: '项目描述不能为空',},
+        ]} required>
           <Input.TextArea />
         </Form.Item>
-        <Form.Item<ItemReq> label="项目企业名称" name="companyName" required>
+        <Form.Item<ItemReq> label="项目企业名称" name="companyName" rules={[{required: true, message: '企业名称不能为空'}]} required>
           <Input />
         </Form.Item>
-        <Form.Item<ItemReq> label="项目联系人" name="contactName" required>
+        <Form.Item<ItemReq> label="项目联系人" name="contactName" rules={[{required: true, message: '联系人不能为空'}]} required>
           <Input />
         </Form.Item>
-        <Form.Item<ItemReq> label="项目联系方式" name="contactPhone" required>
+        <Form.Item<ItemReq> label="项目联系方式" name="contactPhone" rules={[{required: true, message: '联系方式不能为空'}]} required>
           <Input />
         </Form.Item>
         <Form.Item<ItemReq> label="所属用户" name="userId">
@@ -231,6 +249,7 @@ export default function DemandEditPage() {
             }}
             style={{ width: 120 }}
             options={memberList}
+            placeholder="请选择用户"
           />
         </Form.Item>
         <Form.Item<ItemReq> label="所在地区" name="regionId">
@@ -241,6 +260,7 @@ export default function DemandEditPage() {
             }}
             style={{ width: 120 }}
             options={regionList}
+            placeholder="请选择地区"
           />
         </Form.Item>
         <Form.Item<ItemReq> label="所属场景" name="sceneId">
@@ -251,26 +271,27 @@ export default function DemandEditPage() {
             }}
             style={{ width: 120 }}
             options={sceneList}
+            placeholder="请选择场景"
           />
         </Form.Item>
 
-        <Form.Item<ItemReq> label="预算" name="budget" required>
+        <Form.Item<ItemReq> label="预算" name="budget" rules={[{required: true, message: '预算不能为空'}]} required>
           <InputNumber style={{ width: '50%' }} />
         </Form.Item>
-        <Form.Item label="预计结束">
-          {ifUpFile && <DatePicker defaultValue={dayjs(endTime)} format={dateFormat} onChange={onPickEndTime} />}
+        <Form.Item label="预计结束" required>
+          {ifLoad && <DatePicker defaultValue={endTime} format={dateFormat} onChange={onPickEndTime} />}
         </Form.Item>
         <Form.Item<ItemReq> label="对接次数" name="inviteCount">
           <InputNumber style={{ width: '50%' }} />
         </Form.Item>
-        <Form.Item<ItemReq> label="项目介绍" name="content">
-          <Editor id="article-content-editor" value={content} onChange={setContent} />
+        <Form.Item label="项目介绍" required>
+          {ifLoad && <Editor id="demand-content-editor" value={content} onChange={onContent} />}
         </Form.Item>
-        <Form.Item<ItemReq> label="资质要求" name="qualification">
-          <Editor id="article-qualification-editor" value={qualification} onChange={setQualification} />
+        <Form.Item label="资质要求" required>
+          {ifLoad && <Editor id="demand-qualification-editor" value={qualification} onChange={onQualification} />}
         </Form.Item>
-        <Form.Item<ItemReq> label="其他附件" name="otherSet">
-          {ifUpFile && <UploadBizFile defaultList={othersList} onChange={updateOthers} />}
+        <Form.Item label="其他附件" required>
+          {ifLoad && <UploadBizFile defaultList={othersList} onChange={onOtherSet} />}
         </Form.Item>
 
         <Form.Item<ItemReq> label="发布来源" name="source" required>

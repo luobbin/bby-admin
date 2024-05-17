@@ -13,18 +13,16 @@ interface Props extends UploadProps {
   onChange: (fileList: object[]) => void // 通过参数传给父组件的值
 }
 export function UploadBizFile({ defaultList = [], ...other }: Props) {
-  console.log("获取到默认列表：",defaultList);
+  // console.log("获取到默认列表：",defaultList);
   const [loading, setLoading] = useState(false);
   const [fileBase64, setFileBase64] = useState<string>('');
-  const [bizFileList, setBizFileList] = useState<any>(defaultList);
+  const [bizFileList, setBizFileList] = useState<any[]>(defaultList);
   // 重新加载显示数据
   useEffect(() => {
-    console.log("变动的da长度", defaultList.length);
     if (defaultList.length > 0){
       setBizFileList(defaultList);
     }
-    console.log("获取到的BizFileList：",bizFileList)
-  }, [defaultList, bizFileList]);
+  }, [defaultList]);
 
   const beforeUpload = (file: RcFile) => {
     const ifUpload = beforeBizFileUpload(file);
@@ -61,7 +59,7 @@ export function UploadBizFile({ defaultList = [], ...other }: Props) {
           }
           return file;
         });
-        console.log('呼气newFileList',newFileList);
+        console.log('newFileList',newFileList);
         info.fileList = newFileList;
         other.onChange(info.fileList);
       }else {

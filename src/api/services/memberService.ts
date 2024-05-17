@@ -4,7 +4,6 @@ import { useMutation } from '@tanstack/react-query';
 import { PageRes } from '#/entity';
 import { App } from 'antd';
 import { useCallback } from 'react';
-// eslint-disable-next-line import/extensions
 import { Result } from '#/api.ts';
 
 export interface SearchReq {
